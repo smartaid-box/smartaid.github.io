@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartAid Box - Architecture</title>
+  <link rel="icon" type="image/png" href="Smart%20Aid%20Logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #10b981;
+      --accent: #f59e42;
+      --bg: #f3f6fa;
+      --glass: rgba(255,255,255,0.7);
+      --text: #1e293b;
+      --muted: #64748b;
+      --shadow: 0 8px 32px rgba(37,99,235,0.10);
+      --radius: 22px;
+      --transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme="dark"] {
+      --bg: #10172a;
+      --glass: rgba(16,23,42,0.78);
+      --text: #f1f5f9;
+      --muted: #cbd5e1;
+      --primary: #38bdf8;
+    }
+    body {
+      font-family: 'Inter', 'Cairo', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      transition: var(--transition);
+      padding-top: 118px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+    .logo-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+    }
+    .logo-img {
+      width: 90px;
+      height: auto;
+      object-fit: contain;
+      border-radius: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+    .section-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 14px;
+      text-align: center;
+      letter-spacing: -1px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      text-align: center;
+      max-width: 760px;
+      margin: 0 auto 28px auto;
+      line-height: 1.6;
+    }
+    .glass-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08);
+    }
+    .architecture-diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 16px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+    .node {
+      background: rgba(37,99,235,0.08);
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid rgba(37,99,235,0.16);
+      position: relative;
+    }
+    .node h3 {
+      margin: 0 0 12px 0;
+      color: var(--primary);
+      font-size: 1.06rem;
+    }
+    .arrow {
+      font-size: 1.8rem;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+    .items {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      position: relative;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(37,99,235,0.10);
+      border: 1px solid rgba(37,99,235,0.12);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .status-line {
+      margin-top: 14px;
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-align: center;
+      min-height: 24px;
+    }
+    .insights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .sub-card {
+      background: rgba(37,99,235,0.08);
+      border: 1px solid rgba(37,99,235,0.14);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .sub-card h4 {
+      margin: 0 0 10px 0;
+      color: var(--primary);
+      font-size: 1rem;
+    }
+    .kpi-list {
+      display: grid;
+      gap: 8px;
+    }
+    .kpi-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.45);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    [data-theme="dark"] .kpi-row {
+      background: rgba(16,23,42,0.55);
+    }
+    .kpi-value {
+      color: var(--secondary);
+      font-weight: 800;
+    }
+    .recommend-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .priority-chip {
+      display: inline-block;
+      margin: 2px 6px 8px 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .high { background: #e74c3c; }
+    .medium { background: #f59e42; }
+    .low { background: #10b981; }
+    .alert {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      background: #e74c3c;
+      color: #fff;
+      border-radius: 999px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      animation: pulse 1s infinite;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: opacity 0.25s;
+    }
+    .node-alert {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      animation: pulse 1s infinite;
+      cursor: pointer;
+      transition: opacity 0.25s;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .lang-btn {
+      position: fixed;
+      top: 25px;
+      left: 25px;
+      z-index: 10001;
+      padding: 10px 26px;
+      border-radius: 24px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+    }
+    .theme-toggle {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      width: 50px;
+      height: 50px;
+      background: var(--secondary);
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-size: 1.4rem;
+      z-index: 9999;
+      border: none;
+    }
+    .hamburger-menu {
+      position: fixed;
+      top: 25px;
+      right: 25px;
+      z-index: 10002;
+      width: 50px;
+      height: 50px;
+    }
+    .menu-btn {
+      position: relative;
+      z-index: 10003;
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+    .menu-dropdown {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 10001;
+      width: min(360px, 100vw);
+      height: 100vh;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(37,99,235,0.10);
+      border-radius: 0;
+      box-shadow: var(--shadow);
+      padding: 84px 14px 16px;
+      display: none;
+      overflow-y: auto;
+    }
+    .menu-dropdown.open { display: block; }
+    .menu-item {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      padding: 12px 12px;
+      border-radius: 10px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .menu-item:hover {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.01rem;
+      margin: 30px 0 12px 0;
+    }
+    @media (max-width: 900px) {
+      .architecture-diagram {
+        grid-template-columns: 1fr;
+      }
+      .arrow {
+        transform: rotate(90deg);
+      }
+    }
+    @media (max-width: 600px) {
+      .section-title { font-size: 1.45rem; }
+      .menu-btn { width: 46px; height: 46px; }
+      .menu-dropdown { width: 100vw; padding-top: 78px; }
+      body { padding-top: 98px; }
+      .logo-bar { top: 16px; }
+      .logo-img { width: 72px; }
+    }
+  </style>
+</head>
+<body>
+  <button id="lang-btn" class="lang-btn">العربية</button>
+  <div class="hamburger-menu" id="hamburger-menu">
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu-dropdown">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-dropdown" id="menu-dropdown">
+      <a href="index.html#hero" class="menu-item" id="menu-home">Home</a>
+      <a href="index.html#problem" class="menu-item" id="menu-problem">Problem</a>
+      <a href="index.html#solution" class="menu-item" id="menu-solution">Solution</a>
+      <a href="index.html#features" class="menu-item" id="menu-features">Features</a>
+      <a href="index.html#technology" class="menu-item" id="menu-technology">Technology</a>
+      <a href="architecture.html" class="menu-item" id="menu-architecture">Architecture</a>
+      <a href="statistics.html" class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="index.html#team" class="menu-item" id="menu-team">Team</a>
+      <a href="index.html#contact" class="menu-item" id="menu-contact">Contact</a>
+    </div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <i id="theme-icon" class="fas fa-moon"></i>
+  </button>
+
+  <div class="logo-bar">
+    <img src="Smart%20Aid%20Logo.png" alt="Smart Aid Logo" class="logo-img">
+  </div>
+
+  <section class="container">
+    <h2 class="section-title" id="architecture-title">System Architecture</h2>
+    <p class="section-desc" id="architecture-desc">
+      SmartAid Box continuously tracks critical ambulance supplies, predicts shortages, and synchronizes with cloud and hospital dashboards in real time.
+    </p>
+
+    <div class="glass-card">
+      <div class="architecture-diagram">
+        <div class="node" id="node-box">
+          <h3 id="node-box-title">SmartAid Box</h3>
+          <div class="items">
+            <div class="item" id="iv-kits">IV Kits</div>
+            <div class="item" id="oxygen-masks">Oxygen Masks</div>
+            <div class="item" id="bandages">Bandages</div>
+            <div class="item" id="medications">Medications</div>
+          </div>
+        </div>
+        <div class="arrow">-></div>
+        <div class="node" id="node-cloud">
+          <h3 id="node-cloud-title">Cloud Database</h3>
+          <p id="cloud-desc">Receives inventory telemetry and runs predictive shortage models.</p>
+        </div>
+        <div class="arrow">-></div>
+        <div class="node" id="node-dashboard">
+          <h3 id="node-dashboard-title">Hospital Dashboard</h3>
+          <p id="dash-desc">Displays alerts and recommended restock actions.</p>
+        </div>
+      </div>
+      <div class="status-line" id="status-line">Live monitoring active</div>
+
+      <div class="insights-grid">
+        <div class="sub-card">
+          <h4 id="kpi-title">Operational KPIs</h4>
+          <div class="kpi-list">
+            <div class="kpi-row"><span id="kpi-1-label">Prediction Accuracy</span><span class="kpi-value" id="kpi-1-value">94%</span></div>
+            <div class="kpi-row"><span id="kpi-2-label">Avg. Alert Lead Time</span><span class="kpi-value" id="kpi-2-value">2.8 days</span></div>
+            <div class="kpi-row"><span id="kpi-3-label">Sync Latency</span><span class="kpi-value" id="kpi-3-value">1.3 sec</span></div>
+            <div class="kpi-row"><span id="kpi-4-label">Auto Restock Coverage</span><span class="kpi-value" id="kpi-4-value">87%</span></div>
+          </div>
+        </div>
+
+        <div class="sub-card">
+          <h4 id="recommend-title">Recommended Actions</h4>
+          <ul class="recommend-list" id="recommend-list">
+            <li>Restock IV Kits by 10 units within 24 hours.</li>
+            <li>Increase Oxygen Masks safety stock by 15% this week.</li>
+            <li>Schedule Bandage refill before weekend peak demand.</li>
+            <li>Enable high-priority alert routing to ER coordinator.</li>
+          </ul>
+        </div>
+
+        <div class="sub-card">
+          <h4 id="priority-title">Alert Priority Map</h4>
+          <span class="priority-chip high" id="priority-high">High: IV Kits</span>
+          <span class="priority-chip medium" id="priority-medium">Medium: Oxygen Masks</span>
+          <span class="priority-chip low" id="priority-low">Low: Medications</span>
+          <p class="section-desc" id="priority-desc" style="text-align:left; margin: 10px 0 0 0; max-width:none; font-size:0.95rem;">
+            Priority routing helps teams focus on supplies with the highest clinical risk first.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer" id="footer-text">&copy; 2026 Smart Aid. All rights reserved.</div>
+
+  <script>
+    const translations = {
+      en: {
+        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
+        architectureTitle: "System Architecture",
+        architectureDesc: "SmartAid Box continuously tracks critical ambulance supplies, predicts shortages, and synchronizes with cloud and hospital dashboards in real time.",
+        nodeBoxTitle: "SmartAid Box",
+        nodeCloudTitle: "Cloud Database",
+        nodeDashTitle: "Hospital Dashboard",
+        cloudDesc: "Receives inventory telemetry and runs predictive shortage models.",
+        dashDesc: "Displays alerts and recommended restock actions.",
+        items: ["IV Kits", "Oxygen Masks", "Bandages", "Medications"],
+        statusPrefix: "Live alert:",
+        kpiTitle: "Operational KPIs",
+        kpiLabels: ["Prediction Accuracy", "Avg. Alert Lead Time", "Sync Latency", "Auto Restock Coverage"],
+        recommendTitle: "Recommended Actions",
+        recommendItems: [
+          "Restock IV Kits by 10 units within 24 hours.",
+          "Increase Oxygen Masks safety stock by 15% this week.",
+          "Schedule Bandage refill before weekend peak demand.",
+          "Enable high-priority alert routing to ER coordinator."
+        ],
+        priorityTitle: "Alert Priority Map",
+        priorityHigh: "High: IV Kits",
+        priorityMedium: "Medium: Oxygen Masks",
+        priorityLow: "Low: Medications",
+        priorityDesc: "Priority routing helps teams focus on supplies with the highest clinical risk first.",
+        footer: "All rights reserved."
+      },
+      ar: {
+        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
+        architectureTitle: "الهيكل النظامي",
+        architectureDesc: "يقوم صندوق سمارت إيد بتتبع مستلزمات الإسعاف الحيوية باستمرار، ويتنبأ بالنقص، ويزامن البيانات مع السحابة ولوحة المستشفى في الوقت الفعلي.",
+        nodeBoxTitle: "صندوق سمارت إيد",
+        nodeCloudTitle: "قاعدة البيانات السحابية",
+        nodeDashTitle: "لوحة تحكم المستشفى",
+        cloudDesc: "تستقبل بيانات المخزون وتشغل نماذج التنبؤ بالنقص.",
+        dashDesc: "تعرض التنبيهات وتوصيات إعادة التوريد.",
+        items: ["أكياس IV", "أقنعة الأكسجين", "ضمادات", "أدوية"],
+        statusPrefix: "تنبيه مباشر:",
+        kpiTitle: "مؤشرات الأداء التشغيلية",
+        kpiLabels: ["دقة التنبؤ", "متوسط وقت الإنذار المبكر", "زمن مزامنة البيانات", "تغطية إعادة التوريد الآلي"],
+        recommendTitle: "الإجراءات الموصى بها",
+        recommendItems: [
+          "إعادة تزويد أكياس IV بمقدار 10 وحدات خلال 24 ساعة.",
+          "زيادة مخزون أقنعة الأكسجين الاحتياطي بنسبة 15% هذا الأسبوع.",
+          "جدولة إعادة تعبئة الضمادات قبل ذروة عطلة نهاية الأسبوع.",
+          "تفعيل توجيه التنبيهات عالية الأولوية إلى منسق الطوارئ."
+        ],
+        priorityTitle: "خريطة أولوية التنبيهات",
+        priorityHigh: "عالي: أكياس IV",
+        priorityMedium: "متوسط: أقنعة الأكسجين",
+        priorityLow: "منخفض: أدوية",
+        priorityDesc: "يساعد توجيه الأولوية الفرق على التركيز أولًا على المستلزمات الأعلى خطورة سريرية.",
+        footer: "جميع الحقوق محفوظة."
+      }
+    };
+
+    const alertTemplates = {
+      en: [
+        { itemId: 'iv-kits', text: 'IV Kits predicted to run out in 2 days', shortage: 5, restock: 10 },
+        { itemId: 'oxygen-masks', text: 'Oxygen Masks predicted to run out in 3 days', shortage: 4, restock: 9 },
+        { itemId: 'bandages', text: 'Bandages predicted to run out in 1 day', shortage: 8, restock: 14 },
+        { itemId: 'medications', text: 'Medications predicted to run out in 4 days', shortage: 3, restock: 7 }
+      ],
+      ar: [
+        { itemId: 'iv-kits', text: 'أكياس IV متوقعة للنفاد خلال يومين', shortage: 5, restock: 10 },
+        { itemId: 'oxygen-masks', text: 'أقنعة الأكسجين متوقعة للنفاد خلال 3 أيام', shortage: 4, restock: 9 },
+        { itemId: 'bandages', text: 'الضمادات متوقعة للنفاد خلال يوم واحد', shortage: 8, restock: 14 },
+        { itemId: 'medications', text: 'الأدوية متوقعة للنفاد خلال 4 أيام', shortage: 3, restock: 7 }
+      ]
+    };
+
+    let currentLang = 'en';
+    let alertInterval;
+
+    function setLang(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      document.documentElement.lang = lang;
+      document.body.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.getElementById('lang-btn').textContent = lang === 'en' ? 'العربية' : 'English';
+      document.getElementById('architecture-title').textContent = t.architectureTitle;
+      document.getElementById('architecture-desc').textContent = t.architectureDesc;
+      document.getElementById('node-box-title').textContent = t.nodeBoxTitle;
+      document.getElementById('node-cloud-title').textContent = t.nodeCloudTitle;
+      document.getElementById('node-dashboard-title').textContent = t.nodeDashTitle;
+      document.getElementById('cloud-desc').textContent = t.cloudDesc;
+      document.getElementById('dash-desc').textContent = t.dashDesc;
+      document.getElementById('kpi-title').textContent = t.kpiTitle;
+      document.getElementById('kpi-1-label').textContent = t.kpiLabels[0];
+      document.getElementById('kpi-2-label').textContent = t.kpiLabels[1];
+      document.getElementById('kpi-3-label').textContent = t.kpiLabels[2];
+      document.getElementById('kpi-4-label').textContent = t.kpiLabels[3];
+      document.getElementById('recommend-title').textContent = t.recommendTitle;
+      document.getElementById('recommend-list').innerHTML =
+        '<li>' + t.recommendItems[0] + '</li>' +
+        '<li>' + t.recommendItems[1] + '</li>' +
+        '<li>' + t.recommendItems[2] + '</li>' +
+        '<li>' + t.recommendItems[3] + '</li>';
+      document.getElementById('priority-title').textContent = t.priorityTitle;
+      document.getElementById('priority-high').textContent = t.priorityHigh;
+      document.getElementById('priority-medium').textContent = t.priorityMedium;
+      document.getElementById('priority-low').textContent = t.priorityLow;
+      document.getElementById('priority-desc').textContent = t.priorityDesc;
+      document.getElementById('footer-text').innerHTML = '&copy; 2026 Smart Aid. ' + t.footer;
+
+      document.getElementById('menu-home').textContent = t.menu[0];
+      document.getElementById('menu-problem').textContent = t.menu[1];
+      document.getElementById('menu-solution').textContent = t.menu[2];
+      document.getElementById('menu-features').textContent = t.menu[3];
+      document.getElementById('menu-technology').textContent = t.menu[4];
+      document.getElementById('menu-architecture').textContent = t.menu[5];
+      document.getElementById('menu-statistics').textContent = t.menu[6];
+      document.getElementById('menu-team').textContent = t.menu[7];
+      document.getElementById('menu-contact').textContent = t.menu[8];
+
+      document.getElementById('iv-kits').childNodes[0].textContent = t.items[0];
+      document.getElementById('oxygen-masks').childNodes[0].textContent = t.items[1];
+      document.getElementById('bandages').childNodes[0].textContent = t.items[2];
+      document.getElementById('medications').childNodes[0].textContent = t.items[3];
+      document.getElementById('status-line').textContent = lang === 'en' ? 'Live monitoring active' : 'المراقبة المباشرة مفعلة';
+    }
+
+    function showAlert(alertData) {
+      const item = document.getElementById(alertData.itemId);
+      if (!item) return;
+      if (item.querySelector('.alert')) return;
+
+      const badge = document.createElement('span');
+      badge.className = 'alert';
+      badge.textContent = '!';
+      badge.title = alertData.text;
+      badge.onclick = function() {
+        alert(
+          alertData.text + '\n' +
+          (currentLang === 'en' ? 'Predicted shortage: ' : 'النقص المتوقع: ') + alertData.shortage + '\n' +
+          (currentLang === 'en' ? 'Recommended restock: ' : 'إعادة التوريد الموصى بها: ') + alertData.restock
+        );
+      };
+      item.appendChild(badge);
+
+      const nodeBox = document.getElementById('node-box');
+      const nodeDash = document.getElementById('node-dashboard');
+      const boxNodeAlert = document.createElement('span');
+      const dashNodeAlert = document.createElement('span');
+      boxNodeAlert.className = 'node-alert';
+      dashNodeAlert.className = 'node-alert';
+      boxNodeAlert.textContent = 'AI Alert';
+      dashNodeAlert.textContent = 'AI Alert';
+      boxNodeAlert.onclick = badge.onclick;
+      dashNodeAlert.onclick = badge.onclick;
+      nodeBox.appendChild(boxNodeAlert);
+      nodeDash.appendChild(dashNodeAlert);
+
+      document.getElementById('status-line').textContent = translations[currentLang].statusPrefix + ' ' + alertData.text;
+
+      setTimeout(() => {
+        if (badge.parentNode) badge.remove();
+        if (boxNodeAlert.parentNode) boxNodeAlert.remove();
+        if (dashNodeAlert.parentNode) dashNodeAlert.remove();
+      }, 6000);
+    }
+
+    function startAlertSimulation() {
+      if (alertInterval) clearInterval(alertInterval);
+      alertInterval = setInterval(() => {
+        const list = alertTemplates[currentLang];
+        const next = list[Math.floor(Math.random() * list.length)];
+        showAlert(next);
+      }, 4500);
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        icon.className = 'fas fa-moon';
+      } else {
+        body.setAttribute('data-theme', 'dark');
+        icon.className = 'fas fa-sun';
+      }
+    }
+
+    document.getElementById('lang-btn').onclick = function() {
+      setLang(currentLang === 'en' ? 'ar' : 'en');
+      startAlertSimulation();
+    };
+
+    const menuBtn = document.getElementById('menu-btn');
+    const menuDropdown = document.getElementById('menu-dropdown');
+    const menuRoot = document.getElementById('hamburger-menu');
+    menuBtn.onclick = function(event) {
+      event.stopPropagation();
+      const isOpen = menuDropdown.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(isOpen));
+    };
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.onclick = function() {
+        menuDropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      };
+    });
+    document.addEventListener('click', function(event) {
+      if (!menuRoot.contains(event.target)) {
+        menuDropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+      setLang('en');
+      startAlertSimulation();
+    });
+  </script>
+</body>
+</html>

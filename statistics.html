@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartAid Box – Statistics</title>
+  <link rel="icon" type="image/png" href="Smart%20Aid%20Logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --secondary: #10b981;
+      --accent: #f59e42;
+      --bg: #f3f6fa;
+      --glass: rgba(255,255,255,0.7);
+      --glass-dark: rgba(16,23,42,0.7);
+      --text: #1e293b;
+      --muted: #64748b;
+      --white: #fff;
+      --shadow: 0 8px 32px rgba(37,99,235,0.10);
+      --radius: 22px;
+      --transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme="dark"] {
+      --bg: #10172a;
+      --glass: rgba(16,23,42,0.7);
+      --glass-dark: rgba(16,23,42,0.85);
+      --text: #f1f5f9;
+      --muted: #cbd5e1;
+      --white: #10172a;
+      --primary: #38bdf8;
+    }
+    body {
+      font-family: 'Inter', 'Cairo', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      transition: var(--transition);
+      padding-top: 118px;
+    }
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 24px;}
+    .section-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 18px;
+      text-align: center;
+      letter-spacing: -1px;
+    }
+    .glass-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 32px;
+      margin-bottom: 40px;
+      align-items: start;
+    }
+    .glass-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 28px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-card {
+      padding: 20px 18px;
+    }
+    .chart-wrap {
+      position: relative;
+      width: 100%;
+      height: 220px;
+    }
+    .chart-card-title {
+      margin: 0 0 14px 0;
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: left;
+    }
+    .lang-btn {
+      position: fixed;
+      top: 25px;
+      left: 25px;
+      z-index: 10001;
+      padding: 10px 26px;
+      border-radius: 24px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border: none;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .lang-btn:hover {
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      animation: bounce 0.5s;
+    }
+    .theme-toggle {
+      position: fixed;
+      bottom: 25px;
+      left: 25px;
+      width: 50px;
+      height: 50px;
+      background: var(--secondary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-size: 1.5rem;
+      transition: var(--transition);
+      z-index: 9999;
+      border: none;
+      outline: none;
+    }
+    .hamburger-menu {
+      position: fixed;
+      top: 25px;
+      right: 25px;
+      z-index: 10002;
+      width: 50px;
+      height: 50px;
+    }
+    .menu-btn {
+      position: relative;
+      z-index: 10003;
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .menu-btn:hover {
+      transform: scale(1.06);
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+    }
+    .menu-dropdown {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 10001;
+      width: min(360px, 100vw);
+      height: 100vh;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(37,99,235,0.10);
+      border-radius: 0;
+      box-shadow: var(--shadow);
+      padding: 84px 14px 16px;
+      display: none;
+      overflow-y: auto;
+      animation: fadeMenu 0.2s ease-out;
+    }
+    .menu-dropdown.open {
+      display: block;
+    }
+    .menu-item {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      padding: 12px 12px;
+      border-radius: 10px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .menu-item:hover {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+    }
+    @keyframes fadeMenu {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .theme-toggle:hover {
+      animation: bounce 0.5s;
+      background: var(--primary);
+    }
+    .theme-toggle span {
+      font-size: 1.3rem;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #fff;
+      user-select: none;
+    }
+    .nav-bar {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin: 32px 0 24px 0;
+    }
+    .nav-link {
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 1.08rem;
+      padding: 10px 22px;
+      border-radius: 18px;
+      background: rgba(37,99,235,0.07);
+      transition: background 0.2s, color 0.2s;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.06);
+      cursor: pointer;
+      display: inline-block;
+    }
+    .nav-link:hover, .nav-link.active-link {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      animation: bounce 0.5s;
+    }
+    .logo-bar {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+    }
+    .logo-img {
+      width: 90px;
+      height: auto;
+      object-fit: contain;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    @keyframes bounce {
+      0%   { transform: scale(1);}
+      30%  { transform: scale(1.12);}
+      50%  { transform: scale(0.96);}
+      70%  { transform: scale(1.06);}
+      100% { transform: scale(1);}
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.01rem;
+      margin: 40px 0 10px 0;
+    }
+    .stats-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 auto 40px auto;
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .stats-table th, .stats-table td {
+      padding: 12px 18px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+      color: var(--text);
+    }
+    .stats-table th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+    }
+    .stats-table tr:last-child td {
+      border-bottom: none;
+    }
+    .progress-bar-container {
+      width: 100%;
+      background: #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 8px 0;
+      height: 18px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      transition: width 0.6s;
+    }
+    @media (max-width: 600px) {
+      .section-title { font-size: 1.3rem;}
+      .glass-card { padding: 18px 8px;}
+      .chart-card-title { font-size: 0.96rem; }
+      .chart-wrap { height: 180px; }
+      .menu-btn { width: 46px; height: 46px; }
+      .menu-dropdown { width: 100vw; padding-top: 78px; }
+      body { padding-top: 98px; }
+      .logo-bar { top: 16px; }
+      .logo-img { width: 72px; }
+      .nav-link { font-size: 0.98rem; padding: 8px 12px;}
+      .stats-table th, .stats-table td { padding: 8px 4px; font-size: 0.95rem;}
+    }
+  </style>
+</head>
+<body>
+  <button id="lang-btn" class="lang-btn">العربية</button>
+  <div class="hamburger-menu" id="hamburger-menu">
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu-dropdown">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-dropdown" id="menu-dropdown">
+      <a href="index.html#hero" class="menu-item" id="menu-home">Home</a>
+      <a href="index.html#problem" class="menu-item" id="menu-problem">Problem</a>
+      <a href="index.html#solution" class="menu-item" id="menu-solution">Solution</a>
+      <a href="index.html#features" class="menu-item" id="menu-features">Features</a>
+      <a href="index.html#technology" class="menu-item" id="menu-technology">Technology</a>
+      <a href="architecture.html" class="menu-item" id="menu-architecture">Architecture</a>
+      <a href="statistics.html" class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="index.html#team" class="menu-item" id="menu-team">Team</a>
+      <a href="index.html#contact" class="menu-item" id="menu-contact">Contact</a>
+    </div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+  <i id="theme-icon" class="fas fa-moon"></i>
+</button>
+  <div class="logo-bar">
+    <img src="Smart%20Aid%20Logo.png" alt="Smart Aid Logo" class="logo-img">
+  </div>
+  <section class="container" id="statistics">
+    <h2 class="section-title" id="stats-title">Statistics</h2>
+    <div class="glass-grid">
+      <div class="glass-card chart-card">
+        <h3 class="chart-card-title" id="usage-chart-title">Total & Item Usage</h3>
+        <div class="chart-wrap">
+          <canvas id="usageChart"></canvas>
+        </div>
+      </div>
+      <div class="glass-card chart-card">
+        <h3 class="chart-card-title" id="dist-chart-title">Supply Distribution</h3>
+        <div class="chart-wrap">
+          <canvas id="distChart"></canvas>
+        </div>
+      </div>
+      <div class="glass-card chart-card">
+        <h3 class="chart-card-title" id="inventory-chart-title">Inventory Quantity</h3>
+        <div class="chart-wrap">
+          <canvas id="inventoryChart"></canvas>
+        </div>
+      </div>
+      <div class="glass-card chart-card">
+        <h3 class="chart-card-title" id="usage-breakdown-title">Used vs Remaining</h3>
+        <div class="chart-wrap">
+          <canvas id="usageBreakdownChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- New: Table and Progress Bars -->
+    <h2 class="section-title" id="resources-title">Inventory Details</h2>
+    <table class="stats-table" id="resources-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Current</th>
+          <th>Used</th>
+          <th>Remaining</th>
+          <th>Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>IV Kits</td>
+          <td>45</td>
+          <td>20</td>
+          <td>25</td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width:55.6%"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Oxygen Masks</td>
+          <td>30</td>
+          <td>15</td>
+          <td>15</td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width:50%"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Bandages</td>
+          <td>60</td>
+          <td>25</td>
+          <td>35</td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width:58.3%"></div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>Medications</td>
+          <td>25</td>
+          <td>10</td>
+          <td>15</td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width:60%"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  <div class="footer" id="footer-text">
+    &copy; 2026 Smart Aid. All rights reserved.
+  </div>
+  <script>
+    const translations = {
+      en: {
+        nav: ["Home", "Statistics", "Contact"],
+        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
+        statsTitle: "Statistics",
+        usageLabel: "Total Usage (per day)",
+        usageChartTitle: "Total & Item Usage",
+        distLabel: "Supplies Distribution",
+        distChartTitle: "Supply Distribution",
+        inventoryLabel: "Current Inventory Levels",
+        inventoryChartTitle: "Inventory Quantity",
+        usageBreakdownLabel: "Used vs Remaining Supplies",
+        usageBreakdownChartTitle: "Used vs Remaining",
+        usedLabel: "Used",
+        remainingLabel: "Remaining",
+        unitLabel: "units",
+        ivUsageLabel: "IV Kits",
+        oxygenUsageLabel: "Oxygen Masks",
+        bandageUsageLabel: "Bandages",
+        medicationUsageLabel: "Medications",
+        items: ["IV Kits", "Oxygen Masks", "Bandages", "Medications"],
+        resourcesTitle: "Inventory Details",
+        table: [
+          ["IV Kits", 45, 20, 25],
+          ["Oxygen Masks", 30, 15, 15],
+          ["Bandages", 60, 25, 35],
+          ["Medications", 25, 10, 15]
+        ],
+        days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        dist: ["IV Kits", "Oxygen Masks", "Bandages", "Medications"],
+        months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        satisfaction: ["Very Satisfied", "Satisfied", "Neutral", "Unsatisfied"],
+        footer: "All rights reserved.",
+        langBtn: "العربية",
+        themeLight: "Light",
+        themeDark: "Dark"
+      },
+      ar: {
+        nav: ["الرئيسية", "الإحصائيات", "اتصل بنا"],
+        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
+        statsTitle: "الإحصائيات",
+        usageLabel: "إجمالي الاستهلاك (يوميًا)",
+        usageChartTitle: "الاستهلاك الكلي واستهلاك العناصر",
+        distLabel: "توزيع المستلزمات",
+        distChartTitle: "توزيع المستلزمات",
+        inventoryLabel: "مستويات المخزون الحالية",
+        inventoryChartTitle: "كمية المخزون",
+        usageBreakdownLabel: "المستلزمات المستخدمة مقابل المتبقية",
+        usageBreakdownChartTitle: "المستخدم مقابل المتبقي",
+        usedLabel: "مستخدم",
+        remainingLabel: "متبقي",
+        unitLabel: "وحدة",
+        ivUsageLabel: "أكياس IV",
+        oxygenUsageLabel: "أقنعة الأكسجين",
+        bandageUsageLabel: "ضمادات",
+        medicationUsageLabel: "أدوية",
+        items: ["أكياس IV", "أقنعة الأكسجين", "ضمادات", "أدوية"],
+        resourcesTitle: "تفاصيل المخزون",
+        table: [
+          ["أكياس IV", 45, 20, 25],
+          ["أقنعة الأكسجين", 30, 15, 15],
+          ["ضمادات", 60, 25, 35],
+          ["أدوية", 25, 10, 15]
+        ],
+        days: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+        dist: ["أكياس IV", "أقنعة الأكسجين", "ضمادات", "أدوية"],
+        months: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+        satisfaction: ["راضٍ جدًا", "راضٍ", "محايد", "غير راضٍ"],
+        footer: "جميع الحقوق محفوظة.",
+        langBtn: "English",
+        themeLight: "فاتح",
+        themeDark: "داكن"
+      }
+    };
+    let currentLang = "en";
+    let usageChart, distChart, inventoryChart, usageBreakdownChart;
+    let isDark = false;
+    function setLang(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      document.documentElement.lang = lang;
+      document.body.dir = lang === "ar" ? "rtl" : "ltr";
+      // Menu links
+      document.getElementById("menu-home").textContent = t.menu[0];
+      document.getElementById("menu-problem").textContent = t.menu[1];
+      document.getElementById("menu-solution").textContent = t.menu[2];
+      document.getElementById("menu-features").textContent = t.menu[3];
+      document.getElementById("menu-technology").textContent = t.menu[4];
+      document.getElementById("menu-architecture").textContent = t.menu[5];
+      document.getElementById("menu-statistics").textContent = t.menu[6];
+      document.getElementById("menu-team").textContent = t.menu[7];
+      document.getElementById("menu-contact").textContent = t.menu[8];
+      // Stats
+      document.getElementById("stats-title").textContent = t.statsTitle;
+      document.getElementById("footer-text").innerHTML = "&copy; 2026 Smart Aid. " + t.footer;
+      document.getElementById("lang-btn").textContent = t.langBtn;
+      document.getElementById("resources-title").textContent = t.resourcesTitle;
+      document.getElementById("usage-chart-title").textContent = t.usageChartTitle;
+      document.getElementById("dist-chart-title").textContent = t.distChartTitle;
+      document.getElementById("inventory-chart-title").textContent = t.inventoryChartTitle;
+      document.getElementById("usage-breakdown-title").textContent = t.usageBreakdownChartTitle;
+      // Table
+      const table = document.getElementById("resources-table").getElementsByTagName("tbody")[0];
+      table.innerHTML = "";
+      t.table.forEach(row => {
+        const total = row[1] + row[2] + row[3];
+        const level = Math.round((row[3] / total) * 100);
+        table.innerHTML += `
+        <tr>
+          <td>${row[0]}</td>
+          <td>${row[1]}</td>
+          <td>${row[2]}</td>
+          <td>${row[3]}</td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width:${level}%"></div>
+            </div>
+          </td>
+        </tr>`;
+      });
+      // Theme label (kept optional if element is not present)
+      const themeLabel = document.getElementById("theme-label");
+      if (themeLabel) themeLabel.textContent = isDark ? t.themeLight : t.themeDark;
+      drawCharts();
+    }
+    document.getElementById("lang-btn").onclick = function() {
+      setLang(currentLang === "en" ? "ar" : "en");
+    };
+    const menuBtn = document.getElementById('menu-btn');
+    const menuDropdown = document.getElementById('menu-dropdown');
+    const menuRoot = document.getElementById('hamburger-menu');
+
+    menuBtn.onclick = function(event) {
+      event.stopPropagation();
+      const isOpen = menuDropdown.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.onclick = function() {
+        menuDropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      };
+    });
+
+    document.addEventListener('click', function(event) {
+      if (!menuRoot.contains(event.target)) {
+        menuDropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    function drawCharts() {
+      const t = translations[currentLang];
+      const textColor = getComputedStyle(document.body).getPropertyValue('--text');
+      const ivUsage = [3, 5, 4, 7, 6, 8, 10];
+      const oxygenUsage = [2, 3, 2, 4, 3, 5, 7];
+      const bandageUsage = [4, 6, 5, 8, 7, 9, 12];
+      const medicationUsage = [3, 5, 4, 6, 4, 8, 16];
+      const totalUsage = ivUsage.map((value, index) => (
+        value + oxygenUsage[index] + bandageUsage[index] + medicationUsage[index]
+      ));
+
+      // Usage Chart
+      if (usageChart) usageChart.destroy();
+      usageChart = new Chart(document.getElementById('usageChart').getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: t.days,
+          datasets: [
+            {
+              label: t.usageLabel,
+              data: totalUsage,
+              borderColor: '#1e293b',
+              backgroundColor: 'rgba(30,41,59,0.12)',
+              borderWidth: 4,
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              tension: 0.35,
+              fill: true
+            },
+            {
+              label: t.ivUsageLabel,
+              data: ivUsage,
+              borderColor: '#2563eb',
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.35,
+              fill: false
+            },
+            {
+              label: t.oxygenUsageLabel,
+              data: oxygenUsage,
+              borderColor: '#10b981',
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.35,
+              fill: false
+            },
+            {
+              label: t.bandageUsageLabel,
+              data: bandageUsage,
+              borderColor: '#f59e42',
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.35,
+              fill: false
+            },
+            {
+              label: t.medicationUsageLabel,
+              data: medicationUsage,
+              borderColor: '#e74c3c',
+              borderWidth: 3,
+              pointRadius: 3,
+              pointHoverRadius: 5,
+              tension: 0.35,
+              fill: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          animation: { duration: 1000, easing: 'easeOutQuart' },
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { color: textColor, boxWidth: 18, boxHeight: 8 },
+              onClick: (event, legendItem, legend) => {
+                const chart = legend.chart;
+                const clickedIndex = legendItem.datasetIndex;
+                if (chart.$isolatedDatasetIndex === clickedIndex) {
+                  chart.$isolatedDatasetIndex = null;
+                  chart.data.datasets.forEach((_, index) => chart.show(index));
+                } else {
+                  chart.$isolatedDatasetIndex = clickedIndex;
+                  chart.data.datasets.forEach((_, index) => {
+                    if (index === clickedIndex) chart.show(index);
+                    else chart.hide(index);
+                  });
+                }
+                chart.update();
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.dataset.label}: ${context.parsed.y} ${t.unitLabel}`
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: textColor }, grid: { color: 'rgba(100,116,139,0.18)' } },
+            y: { ticks: { color: textColor }, grid: { color: 'rgba(100,116,139,0.18)' } }
+          }
+        }
+      });
+      // Distribution Chart
+      if (distChart) distChart.destroy();
+      distChart = new Chart(document.getElementById('distChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: t.dist,
+          datasets: [{
+            data: [40, 20, 25, 15],
+            backgroundColor: ['#2563eb', '#10b981', '#f59e42', '#e74c3c']
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: 'easeOutQuart' },
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor } },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.label}: ${context.parsed} ${t.unitLabel}`
+              }
+            }
+          }
+        }
+      });
+      // Inventory Chart
+      if (inventoryChart) inventoryChart.destroy();
+      inventoryChart = new Chart(document.getElementById('inventoryChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: t.items,
+          datasets: [{
+            label: t.inventoryLabel,
+            data: [45, 30, 60, 25],
+            backgroundColor: '#2563eb',
+            borderRadius: 10,
+            maxBarThickness: 38,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: 'easeOutQuart' },
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor } },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.dataset.label}: ${context.parsed.y} ${t.unitLabel}`
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { color: textColor }, grid: { display: false } },
+            y: { ticks: { color: textColor }, grid: { color: 'rgba(100,116,139,0.18)' } }
+          }
+        }
+      });
+      // Usage Breakdown
+      if (usageBreakdownChart) usageBreakdownChart.destroy();
+      usageBreakdownChart = new Chart(document.getElementById('usageBreakdownChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: t.items,
+          datasets: [
+            {
+              label: t.usedLabel,
+              data: [20, 15, 25, 10],
+              backgroundColor: '#e74c3c',
+              borderRadius: 8,
+              maxBarThickness: 38,
+            },
+            {
+              label: t.remainingLabel,
+              data: [25, 15, 35, 15],
+              backgroundColor: '#10b981',
+              borderRadius: 8,
+              maxBarThickness: 38,
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: { duration: 900, easing: 'easeOutQuart' },
+          plugins: {
+            legend: { position: 'bottom', labels: { color: textColor } },
+            tooltip: {
+              callbacks: {
+                label: (context) => `${context.dataset.label}: ${context.parsed.y} ${t.unitLabel}`
+              }
+            }
+          },
+          scales: {
+            x: { stacked: true, ticks: { color: textColor }, grid: { display: false } },
+            y: { stacked: true, ticks: { color: textColor }, grid: { color: 'rgba(100,116,139,0.18)' } }
+          }
+        }
+      });
+    }
+    // Theme toggle
+    function toggleTheme() {
+    const body = document.body;
+    const icon = document.getElementById('theme-icon');
+    if (body.getAttribute('data-theme') === 'dark') {
+      body.removeAttribute('data-theme');
+      icon.className = 'fas fa-moon';
+    } else {
+      body.setAttribute('data-theme', 'dark');
+      icon.className = 'fas fa-sun';
+    }
+    drawCharts();
+  }
+    window.addEventListener('DOMContentLoaded', function() {
+      setLang("en");
+      drawCharts();
+    });
+  </script>
+</body>
+</html>

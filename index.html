@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartAid Box – Smarter Ambulances, Faster Emergency Care</title>
+  <link rel="icon" type="image/png" href="Smart%20Aid%20Logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+   @keyframes bounce {
+  0%   { transform: scale(1);}
+  30%  { transform: scale(1.12);}
+  50%  { transform: scale(0.96);}
+  70%  { transform: scale(1.06);}
+  100% { transform: scale(1);}
+}
+button:hover,
+.theme-toggle:hover,
+.hero-nav a:hover {
+  animation: bounce 0.5s;
+}
+    :root {
+      --primary: #38bdf8;
+      --secondary: #10b981;
+      --accent: #f59e42;
+      --bg: #f3f6fa;
+      --glass: rgba(255,255,255,0.7);
+      --glass-dark: rgba(16,23,42,0.7);
+      --text: #1e293b;
+      --muted: #64748b;
+      --white: #fff;
+      --shadow: 0 8px 32px rgba(37,99,235,0.10);
+      --radius: 22px;
+      --transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme="dark"] {
+      --bg: #10172a;
+      --glass: rgba(16,23,42,0.7);
+      --glass-dark: rgba(16,23,42,0.85);
+      --text: #f1f5f9;
+      --muted: #cbd5e1;
+      --white: #10172a;
+      --primary: #2563eb;
+    }
+    html { scroll-behavior: smooth;}
+    body {
+      font-family: 'Inter', 'Cairo', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      transition: var(--transition);
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px;}
+    .theme-toggle, #lang-switch {
+      position: fixed;
+      z-index: 9999;
+    }
+    .hamburger-menu {
+      position: fixed;
+      top: 25px;
+      right: 25px;
+      z-index: 10002;
+      width: 50px;
+      height: 50px;
+    }
+    .menu-btn {
+      position: relative;
+      z-index: 10003;
+      width: 50px;
+      height: 50px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      transition: transform 0.2s, background 0.2s;
+    }
+    .menu-btn:hover {
+      transform: scale(1.06);
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+    }
+    .menu-dropdown {
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 10001;
+      width: min(360px, 100vw);
+      height: 100vh;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(37,99,235,0.10);
+      border-radius: 0;
+      box-shadow: var(--shadow);
+      padding: 84px 14px 16px;
+      display: none;
+      overflow-y: auto;
+      animation: fadeMenu 0.2s ease-out;
+    }
+    .menu-dropdown.open {
+      display: block;
+    }
+    .menu-item {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      text-decoration: none;
+      color: var(--text);
+      font-weight: 700;
+      padding: 12px 12px;
+      border-radius: 10px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .menu-item:hover {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+    }
+    @keyframes fadeMenu {
+      from { opacity: 0; transform: translateX(12px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .theme-toggle {
+      bottom: 25px;
+      left: 25px;
+      width: 50px;
+      height: 50px;
+      background: var(--secondary);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      font-size: 1.5rem;
+      transition: var(--transition);
+    }
+    .theme-toggle:hover { transform: scale(1.1);}
+    #lang-switch {
+      top: 25px;
+      left: 25px;
+    }
+    .lang-btn {
+      padding: 10px 26px;
+      border-radius: 24px;
+      font-size: 1.08rem;
+      font-weight: 700;
+      border: none;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .lang-btn:hover { background: linear-gradient(90deg, var(--secondary), var(--primary)); transform: scale(1.05);}
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(120deg, var(--primary) 0%, var(--secondary) 100%);
+      color: #fff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 120px;
+      box-sizing: border-box;
+    }
+    [data-theme="dark"] .hero {
+      background: linear-gradient(120deg, #1d4ed8 0%, var(--secondary) 100%);
+    }
+    .hero-logo {
+      width: 140px;
+      margin-bottom: 0;
+      filter: drop-shadow(0 4px 24px rgba(0,0,0,0.12));
+      background: none;
+      position: absolute;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+    }
+    .hero-title {
+      font-size: 2.7rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 18px;
+      line-height: 1.2;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    .hero-desc {
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: #e0e7ef;
+      margin-bottom: 38px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-btn {
+      padding: 18px 48px;
+      border-radius: 32px;
+      font-size: 1.18rem;
+      font-weight: 700;
+      border: none;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: var(--shadow);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      margin-bottom: 60px;
+    }
+    .cta-btn:hover { background: linear-gradient(90deg, var(--secondary), var(--primary));/* transform: scale(1.05);*/}
+    .hero-nav {
+      display: flex;
+      gap: 32px;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+    .hero-nav a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.08rem;
+      padding: 8px 18px;
+      border-radius: 18px;
+      transition: background 0.2s;
+    }
+    .hero-nav a:hover, .hero-nav a.active-link { background: var(--secondary); color: #fff;}
+    .section-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 18px;
+      text-align: center;
+      letter-spacing: -1px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 1.18rem;
+      text-align: center;
+      margin-bottom: 38px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .section-cta-wrap {
+      text-align: center;
+      margin: 8px 0 0 0;
+    }
+    .section-cta-link {
+      display: inline-block;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 26px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .section-cta-link:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+    }
+    .glass-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 32px;
+      margin-bottom: 40px;
+    }
+    .glass-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 28px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 1px solid rgba(37,99,235,0.08);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeInUp 0.8s forwards;
+    }
+    .glass-card i {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 18px;
+    }
+    .glass-card .card-title {
+      font-size: 1.18rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+    .glass-card .card-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+    @keyframes fadeInUp {
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 1.01rem;
+      margin: 40px 0 10px 0;
+    }
+    @media (max-width: 600px) {
+      .hero-title { font-size: 1.5rem;}
+      .section-title { font-size: 1.3rem;}
+      .glass-card { padding: 18px 8px;}
+      .cta-btn { padding: 12px 18px;}
+      .hero-logo { width: 90px;}
+      .hero { padding-top: 96px; }
+      .hero-logo { top: 18px; }
+      .menu-btn { width: 46px; height: 46px; }
+      .menu-dropdown { width: 100vw; padding-top: 78px; }
+    }
+    /* Remove white background from logo if any */
+    .hero-logo { background: transparent !important; }
+  </style>
+</head>
+<body>
+  <!-- Theme toggle -->
+  <div class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <i id="theme-icon" class="fas fa-moon"></i>
+  </div>
+  <!-- Language switch -->
+  <div id="lang-switch">
+    <button id="lang-btn" class="lang-btn">العربية</button>
+  </div>
+  <div class="hamburger-menu" id="hamburger-menu">
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu-dropdown">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-dropdown" id="menu-dropdown">
+      <a href="#hero" class="menu-item" id="menu-home">Home</a>
+      <a href="#problem" class="menu-item" id="menu-problem">Problem</a>
+      <a href="#solution" class="menu-item" id="menu-solution">Solution</a>
+      <a href="#features" class="menu-item" id="menu-features">Features</a>
+      <a href="#technology" class="menu-item" id="menu-technology">Technology</a>
+      <a href="architecture.html" class="menu-item" id="menu-architecture">Architecture</a>
+      <a href="statistics.html" class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="#team" class="menu-item" id="menu-team">Team</a>
+      <a href="#contact" class="menu-item" id="menu-contact">Contact</a>
+    </div>
+  </div>
+  <!-- Hero Section -->
+  <section class="hero" id="hero">
+    <img src="Smart%20Aid%20Logo.png" alt="Smart Aid Logo" class="hero-logo">
+    <h1 class="hero-title" id="hero-title">SmartAid Box – Smarter Ambulances, Faster Emergency Care</h1>
+    <p class="hero-desc" id="hero-desc">
+      SmartAid Box is an IoT-enabled medical inventory system for ambulances. Using RFID and sensors, it ensures critical supplies are always available and integrates with hospital systems in real time.
+    </p>
+    <button class="cta-btn" id="cta-btn" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">Learn More</button>
+    <nav class="hero-nav">
+      <a href="#problem" class="active-link" id="nav-problem">Problem</a>
+      <a href="#solution" id="nav-solution">Solution</a>
+      <a href="#features" id="nav-features">Features</a>
+      <a href="#technology" id="nav-tech">Technology</a>
+      <a href="architecture.html" id="nav-architecture">Architecture</a>
+      <a href="statistics.html" id="nav-stats">Statistics</a>
+      <a href="#team" id="nav-team">Team</a>
+      <a href="#contact" id="nav-contact">Contact</a>
+    </nav>
+  </section>
+  <!-- Problem Section -->
+  <section class="container" id="problem" style="margin-top:80px;">
+    <h2 class="section-title" id="problem-title">The Problem</h2>
+    <p class="section-desc" id="problem-desc">
+      Ambulances often face delays due to missing, misplaced, or insufficient medical supplies. Manual inventory checks are slow and error-prone, risking patient safety in emergencies.
+    </p>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <i class="fas fa-clock"></i>
+        <div class="card-title" id="problem-card1-title">Time-Consuming Checks</div>
+        <div class="card-desc" id="problem-card1-desc">Manual inventory takes time and can delay emergency response.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="card-title" id="problem-card2-title">Human Error</div>
+        <div class="card-desc" id="problem-card2-desc">Mistakes in checking supplies can lead to missing critical items.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.3s">
+        <i class="fas fa-pills"></i>
+        <div class="card-title" id="problem-card3-title">Expired or Missing Items</div>
+        <div class="card-desc" id="problem-card3-desc">Supplies may be expired or missing, risking patient care.</div>
+      </div>
+    </div>
+  </section>
+  <!-- Solution Section -->
+  <section class="container" id="solution" style="margin-top:80px;">
+    <h2 class="section-title" id="solution-title">The Solution</h2>
+    <p class="section-desc" id="solution-desc">
+      SmartAid Box automates ambulance inventory using RFID tags and sensors. It tracks every item in real time, sends alerts for shortages, and updates hospital systems instantly.
+    </p>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <i class="fas fa-microchip"></i>
+        <div class="card-title" id="solution-card1-title">RFID Tagging</div>
+        <div class="card-desc" id="solution-card1-desc">Each medical item is tagged for automatic identification.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <i class="fas fa-balance-scale"></i>
+        <div class="card-title" id="solution-card2-title">Weight Sensors</div>
+        <div class="card-desc" id="solution-card2-desc">Sensors detect item removal or addition instantly.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.3s">
+        <i class="fas fa-cloud"></i>
+        <div class="card-title" id="solution-card3-title">IoT Cloud Sync</div>
+        <div class="card-desc" id="solution-card3-desc">Data is sent securely to the cloud in real time.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.4s">
+        <i class="fas fa-hospital"></i>
+        <div class="card-title" id="solution-card4-title">Hospital Dashboard</div>
+        <div class="card-desc" id="solution-card4-desc">Hospitals monitor ambulance inventory and receive alerts.</div>
+      </div>
+    </div>
+  </section>
+  <!-- Features Section -->
+  <section class="container" id="features" style="margin-top:80px;">
+    <h2 class="section-title" id="features-title">Key Features</h2>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <i class="fas fa-sync-alt"></i>
+        <div class="card-title" id="features-card1-title">Real-Time Tracking</div>
+        <div class="card-desc" id="features-card1-desc">Monitor inventory status instantly from anywhere.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <i class="fas fa-bell"></i>
+        <div class="card-title" id="features-card2-title">Low Supply Alerts</div>
+        <div class="card-desc" id="features-card2-desc">Get notified when supplies are low or missing.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.3s">
+        <i class="fas fa-link"></i>
+        <div class="card-title" id="features-card3-title">Hospital Integration</div>
+        <div class="card-desc" id="features-card3-desc">Seamless FHIR integration with hospital systems.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.4s">
+        <i class="fas fa-chart-bar"></i>
+        <div class="card-title" id="features-card4-title">Analytics Dashboard</div>
+        <div class="card-desc" id="features-card4-desc">Visualize usage, trends, and inventory health.</div>
+      </div>
+    </div>
+  </section>
+  <!-- Technology Section -->
+  <section class="container" id="technology" style="margin-top:80px;">
+    <h2 class="section-title" id="tech-title">Technology Stack</h2>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <i class="fas fa-microchip"></i>
+        <div class="card-title" id="tech-card1-title">IoT Devices</div>
+        <div class="card-desc" id="tech-card1-desc">Smart sensors and RFID for real-time data.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <i class="fas fa-cloud"></i>
+        <div class="card-title" id="tech-card2-title">Cloud Database</div>
+        <div class="card-desc" id="tech-card2-desc">Secure, scalable storage for all inventory data.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.3s">
+        <i class="fas fa-network-wired"></i>
+        <div class="card-title" id="tech-card3-title">FHIR Integration</div>
+        <div class="card-desc" id="tech-card3-desc">Healthcare data standards for hospital systems.</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.4s">
+        <i class="fas fa-laptop-code"></i>
+        <div class="card-title" id="tech-card4-title">Web Dashboard</div>
+        <div class="card-desc" id="tech-card4-desc">Monitor and manage inventory from anywhere.</div>
+      </div>
+    </div>
+    <div class="section-cta-wrap">
+      <a href="architecture.html" class="section-cta-link" id="architecture-cta-link">Explore Full Architecture</a>
+    </div>
+  </section>
+  <!-- Statistics Section -->
+  <section class="container" id="statistics" style="margin-top:80px;">
+    <h2 class="section-title" id="stats-title">Statistics</h2>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <canvas id="usageChart" height="120"></canvas>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <canvas id="distChart" height="120"></canvas>
+      </div>
+      <div class="glass-card" style="animation-delay:0.3s">
+        <canvas id="inventoryChart" height="120"></canvas>
+      </div>
+      <div class="glass-card" style="animation-delay:0.4s">
+        <canvas id="usageBreakdownChart" height="120"></canvas>
+      </div>
+    </div>
+  </section>
+  <!-- Team Section -->
+  <section class="container" id="team" style="margin-top:80px;">
+    <h2 class="section-title" id="team-title">Our Team</h2>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <i class="fas fa-user"></i>
+        <div class="card-title" id="team-card1-title">Your Name</div>
+        <div class="card-desc" id="team-card1-desc">Project Lead</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <i class="fas fa-user"></i>
+        <div class="card-title" id="team-card2-title">Member 2</div>
+        <div class="card-desc" id="team-card2-desc">Hardware Engineer</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.3s">
+        <i class="fas fa-user"></i>
+        <div class="card-title" id="team-card3-title">Member 3</div>
+        <div class="card-desc" id="team-card3-desc">Software Developer</div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.4s">
+        <i class="fas fa-user"></i>
+        <div class="card-title" id="team-card4-title">Member 4</div>
+        <div class="card-desc" id="team-card4-desc">Data & Cloud</div>
+      </div>
+    </div>
+  </section>
+  <!-- Contact Section -->
+  <section class="container" id="contact" style="margin-top:80px;">
+    <h2 class="section-title" id="contact-title">Contact</h2>
+    <div class="glass-grid">
+      <div class="glass-card" style="animation-delay:0.1s">
+        <i class="fas fa-envelope"></i>
+        <div class="card-title" id="contact-card1-title">Email</div>
+        <div class="card-desc" id="contact-card1-desc"><a href="mailto:smartaid317@gmail.com">smartaid317@gmail.com</a></div>
+      </div>
+      <div class="glass-card" style="animation-delay:0.2s">
+        <i class="fab fa-instagram"></i>
+        <div class="card-title" id="contact-card2-title">Instagram</div>
+        <div class="card-desc" id="contact-card2-desc"><a href="https://www.instagram.com/smartaid1?igsh=MXF0b2llMG5haG16cQ==" target="_blank">@smartaid1</a></div>
+      </div>
+    </div>
+  </section>
+  <div class="footer" id="footer-text">
+    &copy; 2026 Smart Aid. All rights reserved.
+  </div>
+  <script>
+    // Translation dictionary
+    const translations = {
+      en: {
+        heroTitle: "SmartAid Box – Smarter Ambulances, Faster Emergency Care",
+        heroDesc: "SmartAid Box is an IoT-enabled medical inventory system for ambulances. Using RFID and sensors, it ensures critical supplies are always available and integrates with hospital systems in real time.",
+        cta: "Learn More",
+        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
+        nav: ["Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
+        problemTitle: "The Problem",
+        problemDesc: "Ambulances often face delays due to missing, misplaced, or insufficient medical supplies. Manual inventory checks are slow and error-prone, risking patient safety in emergencies.",
+        problemCards: [
+          ["Time-Consuming Checks", "Manual inventory takes time and can delay emergency response."],
+          ["Human Error", "Mistakes in checking supplies can lead to missing critical items."],
+          ["Expired or Missing Items", "Supplies may be expired or missing, risking patient care."]
+        ],
+        solutionTitle: "The Solution",
+        solutionDesc: "SmartAid Box automates ambulance inventory using RFID tags and sensors. It tracks every item in real time, sends alerts for shortages, and updates hospital systems instantly.",
+        solutionCards: [
+          ["RFID Tagging", "Each medical item is tagged for automatic identification."],
+          ["Weight Sensors", "Sensors detect item removal or addition instantly."],
+          ["IoT Cloud Sync", "Data is sent securely to the cloud in real time."],
+          ["Hospital Dashboard", "Hospitals monitor ambulance inventory and receive alerts."]
+        ],
+        featuresTitle: "Key Features",
+        featuresCards: [
+          ["Real-Time Tracking", "Monitor inventory status instantly from anywhere."],
+          ["Low Supply Alerts", "Get notified when supplies are low or missing."],
+          ["Hospital Integration", "Seamless FHIR integration with hospital systems."],
+          ["Analytics Dashboard", "Visualize usage, trends, and inventory health."]
+        ],
+        techTitle: "Technology Stack",
+        architectureCta: "Explore Full Architecture",
+        techCards: [
+          ["IoT Devices", "Smart sensors and RFID for real-time data."],
+          ["Cloud Database", "Secure, scalable storage for all inventory data."],
+          ["FHIR Integration", "Healthcare data standards for hospital systems."],
+          ["Web Dashboard", "Monitor and manage inventory from anywhere."]
+        ],
+        statsTitle: "Statistics",
+        usageLabel: "Usage (per day)",
+        distLabel: "Supplies Distribution",
+        days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+        dist: ["Medicines", "Oxygen", "Fluids", "Other"],
+        inventoryLabel: "Current Inventory Levels",
+        usageBreakdownLabel: "Used vs Remaining Supplies",
+        usedLabel: "Used",
+        remainingLabel: "Remaining",
+        items: ["IV Kits", "Oxygen Masks", "Bandages", "Medications"],
+        teamTitle: "Our Team",
+        teamCards: [
+          ["Your Name", "Project Lead"],
+          ["Member 2", "Hardware Engineer"],
+          ["Member 3", "Software Developer"],
+          ["Member 4", "Data & Cloud"]
+        ],
+        contactTitle: "Contact",
+        contactCards: [
+          ["Email", '<a href="mailto:smartaid317@gmail.com">smartaid317@gmail.com</a>'],
+          ["Instagram", '<a href="https://www.instagram.com/smartaid1?igsh=MXF0b2llMG5haG16cQ==" target="_blank">@smartaid1</a>']
+        ],
+        footer: "All rights reserved."
+      },
+      ar: {
+        heroTitle: "صندوق سمارت إيد – سيارات إسعاف أذكى، ورعاية طبية أسرع",
+        heroDesc: "صندوق سمارت إيد هو نظام جرد طبي ذكي لسيارات الإسعاف يعمل بتقنية إنترنت الأشياء. باستخدام RFID وأجهزة الاستشعار، يضمن توفر المستلزمات الحيوية دائمًا ويتكامل مع أنظمة المستشفيات في الوقت الفعلي.",
+        cta: "اعرف المزيد",
+        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
+        nav: ["المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
+        problemTitle: "المشكلة",
+        problemDesc: "غالبًا ما تواجه سيارات الإسعاف تأخيرات بسبب نقص أو فقدان أو عدم كفاية المستلزمات الطبية. الفحص اليدوي للجرد بطيء وعرضة للأخطاء، مما يعرض سلامة المرضى للخطر في حالات الطوارئ.",
+        problemCards: [
+          ["فحوصات تستغرق وقتًا", "الفحص اليدوي للجرد يستغرق وقتًا وقد يؤخر الاستجابة للطوارئ."],
+          ["خطأ بشري", "الأخطاء في فحص المستلزمات قد تؤدي إلى فقدان عناصر حيوية."],
+          ["عناصر منتهية أو مفقودة", "قد تكون المستلزمات منتهية أو مفقودة، مما يعرض رعاية المرضى للخطر."]
+        ],
+        solutionTitle: "الحل",
+        solutionDesc: "يعمل صندوق سمارت إيد على أتمتة جرد سيارات الإسعاف باستخدام علامات RFID وأجهزة الاستشعار. يتتبع كل عنصر في الوقت الفعلي، ويرسل تنبيهات عند النقص، ويحدث أنظمة المستشفى فورًا.",
+        solutionCards: [
+          ["ترميز RFID", "يتم ترميز كل عنصر طبي تلقائيًا."],
+          ["حساسات الوزن", "تكتشف الحساسات إزالة أو إضافة العناصر فورًا."],
+          ["مزامنة سحابية", "يتم إرسال البيانات بأمان إلى السحابة في الوقت الفعلي."],
+          ["لوحة تحكم المستشفى", "تراقب المستشفيات الجرد وتتلقى التنبيهات."]
+        ],
+        featuresTitle: "الميزات الرئيسية",
+        featuresCards: [
+          ["تتبع لحظي", "مراقبة حالة الجرد فورًا من أي مكان."],
+          ["تنبيهات نقص المستلزمات", "تلقي إشعارات عند انخفاض أو فقدان المستلزمات."],
+          ["تكامل مع المستشفى", "تكامل سلس مع أنظمة المستشفيات عبر FHIR."],
+          ["لوحة تحكم تحليلية", "عرض الاستخدام والاتجاهات وصحة الجرد."]
+        ],
+        techTitle: "التقنيات المستخدمة",
+        architectureCta: "استعرض الهيكل النظامي الكامل",
+        techCards: [
+          ["أجهزة إنترنت الأشياء", "حساسات ذكية وRFID لبيانات لحظية."],
+          ["قاعدة بيانات سحابية", "تخزين آمن وقابل للتوسع لكل بيانات الجرد."],
+          ["تكامل FHIR", "معايير بيانات الرعاية الصحية لأنظمة المستشفيات."],
+          ["لوحة تحكم ويب", "مراقبة وإدارة الجرد من أي مكان."]
+        ],
+        statsTitle: "الإحصائيات",
+        usageLabel: "الاستهلاك (يوميًا)",
+        distLabel: "توزيع المستلزمات",
+        days: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
+        dist: ["أدوية", "أكسجين", "سوائل", "أخرى"],
+        inventoryLabel: "مستويات المخزون الحالية",
+        usageBreakdownLabel: "المستلزمات المستخدمة مقابل المتبقية",
+        usedLabel: "مستخدم",
+        remainingLabel: "متبقي",
+        items: ["أكياس IV", "أقنعة الأكسجين", "ضمادات", "أدوية"],
+        teamTitle: "الفريق",
+        teamCards: [
+          ["اسمك", "قائد المشروع"],
+          ["عضو 2", "مهندس أجهزة"],
+          ["عضو 3", "مطور برمجيات"],
+          ["عضو 4", "البيانات والسحابة"]
+        ],
+        contactTitle: "اتصل بنا",
+        contactCards: [
+          ["البريد الإلكتروني", '<a href="mailto:smartaid317@gmail.com">smartaid317@gmail.com</a>'],
+          ["إنستغرام", '<a href="https://www.instagram.com/smartaid1?igsh=MXF0b2llMG5haG16cQ==" target="_blank">@smartaid1</a>']
+        ],
+        footer: "جميع الحقوق محفوظة."
+      }
+    };
+    let currentLang = "en";
+    let usageChart, distChart, inventoryChart, usageBreakdownChart;
+    function setLang(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      document.documentElement.lang = lang;
+      document.body.dir = lang === "ar" ? "rtl" : "ltr";
+      document.getElementById("hero-title").textContent = t.heroTitle;
+      document.getElementById("hero-desc").textContent = t.heroDesc;
+      document.getElementById("cta-btn").textContent = t.cta;
+      // Nav
+      document.getElementById("nav-problem").textContent = t.nav[0];
+      document.getElementById("nav-solution").textContent = t.nav[1];
+      document.getElementById("nav-features").textContent = t.nav[2];
+      document.getElementById("nav-tech").textContent = t.nav[3];
+      document.getElementById("nav-architecture").textContent = t.nav[4];
+      document.getElementById("nav-stats").textContent = t.nav[5];
+      document.getElementById("nav-team").textContent = t.nav[6];
+      document.getElementById("nav-contact").textContent = t.nav[7];
+      document.getElementById("menu-home").textContent = t.menu[0];
+      document.getElementById("menu-problem").textContent = t.menu[1];
+      document.getElementById("menu-solution").textContent = t.menu[2];
+      document.getElementById("menu-features").textContent = t.menu[3];
+      document.getElementById("menu-technology").textContent = t.menu[4];
+      document.getElementById("menu-architecture").textContent = t.menu[5];
+      document.getElementById("menu-statistics").textContent = t.menu[6];
+      document.getElementById("menu-team").textContent = t.menu[7];
+      document.getElementById("menu-contact").textContent = t.menu[8];
+      // Problem
+      document.getElementById("problem-title").textContent = t.problemTitle;
+      document.getElementById("problem-desc").textContent = t.problemDesc;
+      document.getElementById("problem-card1-title").textContent = t.problemCards[0][0];
+      document.getElementById("problem-card1-desc").textContent = t.problemCards[0][1];
+      document.getElementById("problem-card2-title").textContent = t.problemCards[1][0];
+      document.getElementById("problem-card2-desc").textContent = t.problemCards[1][1];
+      document.getElementById("problem-card3-title").textContent = t.problemCards[2][0];
+      document.getElementById("problem-card3-desc").textContent = t.problemCards[2][1];
+      // Solution
+      document.getElementById("solution-title").textContent = t.solutionTitle;
+      document.getElementById("solution-desc").textContent = t.solutionDesc;
+      document.getElementById("solution-card1-title").textContent = t.solutionCards[0][0];
+      document.getElementById("solution-card1-desc").textContent = t.solutionCards[0][1];
+      document.getElementById("solution-card2-title").textContent = t.solutionCards[1][0];
+      document.getElementById("solution-card2-desc").textContent = t.solutionCards[1][1];
+      document.getElementById("solution-card3-title").textContent = t.solutionCards[2][0];
+      document.getElementById("solution-card3-desc").textContent = t.solutionCards[2][1];
+      document.getElementById("solution-card4-title").textContent = t.solutionCards[3][0];
+      document.getElementById("solution-card4-desc").textContent = t.solutionCards[3][1];
+      // Features
+      document.getElementById("features-title").textContent = t.featuresTitle;
+      document.getElementById("features-card1-title").textContent = t.featuresCards[0][0];
+      document.getElementById("features-card1-desc").textContent = t.featuresCards[0][1];
+      document.getElementById("features-card2-title").textContent = t.featuresCards[1][0];
+      document.getElementById("features-card2-desc").textContent = t.featuresCards[1][1];
+      document.getElementById("features-card3-title").textContent = t.featuresCards[2][0];
+      document.getElementById("features-card3-desc").textContent = t.featuresCards[2][1];
+      document.getElementById("features-card4-title").textContent = t.featuresCards[3][0];
+      document.getElementById("features-card4-desc").textContent = t.featuresCards[3][1];
+      // Technology
+      document.getElementById("tech-title").textContent = t.techTitle;
+      document.getElementById("architecture-cta-link").textContent = t.architectureCta;
+      document.getElementById("tech-card1-title").textContent = t.techCards[0][0];
+      document.getElementById("tech-card1-desc").textContent = t.techCards[0][1];
+      document.getElementById("tech-card2-title").textContent = t.techCards[1][0];
+      document.getElementById("tech-card2-desc").textContent = t.techCards[1][1];
+      document.getElementById("tech-card3-title").textContent = t.techCards[2][0];
+      document.getElementById("tech-card3-desc").textContent = t.techCards[2][1];
+      document.getElementById("tech-card4-title").textContent = t.techCards[3][0];
+      document.getElementById("tech-card4-desc").textContent = t.techCards[3][1];
+      // Statistics
+      document.getElementById("stats-title").textContent = t.statsTitle;
+      // Team
+      document.getElementById("team-title").textContent = t.teamTitle;
+      document.getElementById("team-card1-title").textContent = t.teamCards[0][0];
+      document.getElementById("team-card1-desc").textContent = t.teamCards[0][1];
+      document.getElementById("team-card2-title").textContent = t.teamCards[1][0];
+      document.getElementById("team-card2-desc").textContent = t.teamCards[1][1];
+      document.getElementById("team-card3-title").textContent = t.teamCards[2][0];
+      document.getElementById("team-card3-desc").textContent = t.teamCards[2][1];
+      document.getElementById("team-card4-title").textContent = t.teamCards[3][0];
+      document.getElementById("team-card4-desc").textContent = t.teamCards[3][1];
+      // Contact
+      document.getElementById("contact-title").textContent = t.contactTitle;
+      document.getElementById("contact-card1-title").textContent = t.contactCards[0][0];
+      document.getElementById("contact-card1-desc").innerHTML = t.contactCards[0][1];
+      document.getElementById("contact-card2-title").textContent = t.contactCards[1][0];
+      document.getElementById("contact-card2-desc").innerHTML = t.contactCards[1][1];
+      // Footer
+      document.getElementById("footer-text").innerHTML = "&copy; 2026 Smart Aid. " + t.footer;
+      document.getElementById("lang-btn").textContent = lang === "en" ? "العربية" : "English";
+      drawCharts();
+    }
+    document.getElementById("lang-btn").onclick = function() {
+      setLang(currentLang === "en" ? "ar" : "en");
+    };
+    // Chart.js statistics
+    function hexToRgba(hex, alpha) {
+      const clean = hex.replace('#', '').trim();
+      if (clean.length !== 6) return `rgba(37,99,235,${alpha})`;
+      const r = parseInt(clean.substring(0, 2), 16);
+      const g = parseInt(clean.substring(2, 4), 16);
+      const b = parseInt(clean.substring(4, 6), 16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+
+    function drawCharts() {
+      const t = translations[currentLang];
+      const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#2563eb';
+      // Usage Chart
+      if (usageChart) usageChart.destroy();
+      usageChart = new Chart(document.getElementById('usageChart').getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: t.days,
+          datasets: [{
+            label: t.usageLabel,
+            data: [12, 19, 15, 25, 20, 30, 45],
+            borderColor: primaryColor,
+            backgroundColor: hexToRgba(primaryColor, 0.10),
+            tension: 0.4,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#1e293b' } } },
+          scales: { x: { ticks: { color: '#1e293b' } }, y: { ticks: { color: '#1e293b' } } }
+        }
+      });
+      // Distribution Chart
+      if (distChart) distChart.destroy();
+      distChart = new Chart(document.getElementById('distChart').getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: t.dist,
+          datasets: [{
+            data: [40, 20, 25, 15],
+            backgroundColor: [primaryColor, '#10b981', '#f59e42', '#e74c3c']
+          }]
+        },
+        options: {
+          plugins: { legend: { labels: { color: '#1e293b' } } }
+        }
+      });
+      // Inventory Chart
+      if (inventoryChart) inventoryChart.destroy();
+      inventoryChart = new Chart(document.getElementById('inventoryChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: t.items,
+          datasets: [{
+            label: t.inventoryLabel,
+            data: [45, 30, 60, 25],
+            backgroundColor: primaryColor,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#1e293b' } } },
+          scales: { x: { ticks: { color: '#1e293b' } }, y: { ticks: { color: '#1e293b' } } }
+        }
+      });
+      // Usage Breakdown
+      if (usageBreakdownChart) usageBreakdownChart.destroy();
+      usageBreakdownChart = new Chart(document.getElementById('usageBreakdownChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: t.items,
+          datasets: [
+            {
+              label: t.usedLabel,
+              data: [20, 15, 25, 10],
+              backgroundColor: '#e74c3c',
+            },
+            {
+              label: t.remainingLabel,
+              data: [25, 15, 35, 15],
+              backgroundColor: '#10b981',
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#1e293b' } } },
+          scales: { x: { stacked: true }, y: { stacked: true, ticks: { color: '#1e293b' } } }
+        }
+      });
+    }
+    // Smooth scroll nav active
+    document.querySelectorAll('.hero-nav a').forEach(link => {
+      link.onclick = function() {
+        document.querySelectorAll('.hero-nav a').forEach(l => l.classList.remove('active-link'));
+        this.classList.add('active-link');
+      }
+    });
+    const menuBtn = document.getElementById('menu-btn');
+    const menuDropdown = document.getElementById('menu-dropdown');
+    const menuRoot = document.getElementById('hamburger-menu');
+
+    menuBtn.onclick = function(event) {
+      event.stopPropagation();
+      const isOpen = menuDropdown.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(isOpen));
+    };
+
+    document.querySelectorAll('.menu-item').forEach(item => {
+      item.onclick = function() {
+        menuDropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      };
+    });
+
+    document.addEventListener('click', function(event) {
+      if (!menuRoot.contains(event.target)) {
+        menuDropdown.classList.remove('open');
+        menuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    // Fade-in animation on scroll
+    function revealOnScroll() {
+      document.querySelectorAll('.glass-card').forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if(rect.top < window.innerHeight - 60) {
+          el.style.opacity = 1;
+          el.style.transform = 'translateY(0)';
+        }
+      });
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('DOMContentLoaded', function() {
+      revealOnScroll();
+      setLang("en");
+      drawCharts();
+    });
+    // Theme toggle
+    function toggleTheme() {
+      const body = document.body;
+      const icon = document.getElementById('theme-icon');
+      if (body.getAttribute('data-theme') === 'dark') {
+        body.removeAttribute('data-theme');
+        icon.className = 'fas fa-moon';
+      } else {
+        body.setAttribute('data-theme', 'dark');
+        icon.className = 'fas fa-sun';
+      }
+      drawCharts();
+    }
+  </script>
+</body>
+</html>
