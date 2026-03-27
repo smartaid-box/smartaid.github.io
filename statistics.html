@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartAid Box – Statistics</title>
-  <link rel="icon" type="image/png" href="Smart%20Aid%20Logo.png">
+  <link rel="icon" type="image/png" href="Smart%20Aid%20Logo.png?v=2">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -39,7 +39,7 @@
       margin: 0;
       padding: 0;
       transition: var(--transition);
-      padding-top: 118px;
+      padding-top: 90px;
     }
     .container { max-width: 1200px; margin: 40px auto; padding: 0 24px;}
     .section-title {
@@ -228,10 +228,17 @@
     }
     .logo-bar {
       position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
       z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      box-shadow: 0 2px 16px rgba(37,99,235,0.07);
+      transition: background 0.3s;
     }
     .logo-img {
       width: 90px;
@@ -297,8 +304,8 @@
       .chart-wrap { height: 180px; }
       .menu-btn { width: 46px; height: 46px; }
       .menu-dropdown { width: 100vw; padding-top: 78px; }
-      body { padding-top: 98px; }
-      .logo-bar { top: 16px; }
+      body { padding-top: 78px; }
+      .logo-bar { height: 68px; }
       .logo-img { width: 72px; }
       .nav-link { font-size: 0.98rem; padding: 8px 12px;}
       .stats-table th, .stats-table td { padding: 8px 4px; font-size: 0.95rem;}
