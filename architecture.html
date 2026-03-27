@@ -607,16 +607,35 @@
       }, 4500);
     }
 
+    const THEME_STORAGE_KEY = 'smartaid-theme';
+
+    function syncThemeIcon() {
+      const icon = document.getElementById('theme-icon');
+      if (!icon) return;
+      icon.className = document.body.getAttribute('data-theme') === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    function applySavedTheme() {
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      if (savedTheme === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+      } else {
+        document.body.removeAttribute('data-theme');
+      }
+      syncThemeIcon();
+    }
+
     function toggleTheme() {
       const body = document.body;
-      const icon = document.getElementById('theme-icon');
-      if (body.getAttribute('data-theme') === 'dark') {
+      const isDark = body.getAttribute('data-theme') === 'dark';
+      if (isDark) {
         body.removeAttribute('data-theme');
-        icon.className = 'fas fa-moon';
+        localStorage.setItem(THEME_STORAGE_KEY, 'light');
       } else {
         body.setAttribute('data-theme', 'dark');
-        icon.className = 'fas fa-sun';
+        localStorage.setItem(THEME_STORAGE_KEY, 'dark');
       }
+      syncThemeIcon();
     }
 
     document.getElementById('lang-btn').onclick = function() {
@@ -646,6 +665,7 @@
     });
 
     window.addEventListener('DOMContentLoaded', function() {
+      applySavedTheme();
       setLang('en');
       startAlertSimulation();
     });
