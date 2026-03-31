@@ -613,7 +613,7 @@ button:hover,
         usageLabel: "Usage (per day)",
         distLabel: "Supplies Distribution",
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-        dist: ["Medicines", "Oxygen", "Fluids", "Other"],
+        dist: ["IV Kits", "Oxygen Masks", "Bandages", "Medications"],
         inventoryLabel: "Current Inventory Levels",
         usageBreakdownLabel: "Used vs Remaining Supplies",
         usedLabel: "Used",
@@ -673,7 +673,7 @@ button:hover,
         usageLabel: "الاستهلاك (يوميًا)",
         distLabel: "توزيع المستلزمات",
         days: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
-        dist: ["أدوية", "أكسجين", "سوائل", "أخرى"],
+        dist: ["أكياس IV", "أقنعة الأكسجين", "ضمادات", "أدوية"],
         inventoryLabel: "مستويات المخزون الحالية",
         usageBreakdownLabel: "المستلزمات المستخدمة مقابل المتبقية",
         usedLabel: "مستخدم",
@@ -802,26 +802,70 @@ button:hover,
     function drawCharts() {
       const t = translations[currentLang];
       const primaryColor = getComputedStyle(document.body).getPropertyValue('--primary').trim() || '#2563eb';
+      const chartTextColor = document.body.getAttribute('data-theme') === 'dark' ? '#f1f5f9' : '#1e293b';
+      const xAxisTitle = currentLang === 'ar' ? 'اليوم' : 'Day';
+      const yAxisTitle = currentLang === 'ar' ? 'العناصر المستخدمة' : 'Used Items';
       // Usage Chart
       if (usageChart) usageChart.destroy();
       usageChart = new Chart(document.getElementById('usageChart').getContext('2d'), {
         type: 'line',
         data: {
           labels: t.days,
-          datasets: [{
-            label: t.usageLabel,
-            data: [12, 19, 15, 25, 20, 30, 45],
-            borderColor: primaryColor,
-            backgroundColor: hexToRgba(primaryColor, 0.10),
-            tension: 0.4,
-            fill: true
-          }]
+          datasets: [
+            {
+              label: t.items[0],
+              data: [6, 8, 7, 10, 9, 11, 12],
+              borderColor: primaryColor,
+              backgroundColor: hexToRgba(primaryColor, 0.10),
+              tension: 0.35,
+              fill: false
+            },
+            {
+              label: t.items[1],
+              data: [4, 6, 5, 7, 6, 8, 9],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16,185,129,0.10)',
+              tension: 0.35,
+              fill: false
+            },
+            {
+              label: t.items[2],
+              data: [3, 4, 4, 5, 5, 6, 7],
+              borderColor: '#f59e42',
+              backgroundColor: 'rgba(245,158,66,0.10)',
+              tension: 0.35,
+              fill: false
+            },
+            {
+              label: t.items[3],
+              data: [2, 3, 3, 4, 4, 5, 6],
+              borderColor: '#e74c3c',
+              backgroundColor: 'rgba(231,76,60,0.10)',
+              tension: 0.35,
+              fill: false
+            }
+          ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#1e293b' } } },
-          scales: { x: { ticks: { color: '#1e293b' } }, y: { ticks: { color: '#1e293b' } } }
+          plugins: {
+            legend: {
+              position: 'bottom',
+              align: 'center',
+              labels: { color: chartTextColor, padding: 16, boxWidth: 12, boxHeight: 12 }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: chartTextColor },
+              title: { display: true, text: xAxisTitle, color: chartTextColor }
+            },
+            y: {
+              ticks: { color: chartTextColor },
+              title: { display: true, text: yAxisTitle, color: chartTextColor }
+            }
+          }
         }
       });
       // Distribution Chart
@@ -831,14 +875,20 @@ button:hover,
         data: {
           labels: t.dist,
           datasets: [{
-            data: [40, 20, 25, 15],
+            data: [45, 30, 60, 25],
             backgroundColor: [primaryColor, '#10b981', '#f59e42', '#e74c3c']
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#1e293b' } } }
+          plugins: {
+            legend: {
+              position: 'bottom',
+              align: 'center',
+              labels: { color: chartTextColor, padding: 16, boxWidth: 12, boxHeight: 12 }
+            }
+          }
         }
       });
       // Inventory Chart
@@ -856,8 +906,8 @@ button:hover,
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#1e293b' } } },
-          scales: { x: { ticks: { color: '#1e293b' } }, y: { ticks: { color: '#1e293b' } } }
+          plugins: { legend: { labels: { color: chartTextColor } } },
+          scales: { x: { ticks: { color: chartTextColor } }, y: { ticks: { color: chartTextColor } } }
         }
       });
       // Usage Breakdown
@@ -882,8 +932,8 @@ button:hover,
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#1e293b' } } },
-          scales: { x: { stacked: true }, y: { stacked: true, ticks: { color: '#1e293b' } } }
+          plugins: { legend: { labels: { color: chartTextColor } } },
+          scales: { x: { stacked: true, ticks: { color: chartTextColor } }, y: { stacked: true, ticks: { color: chartTextColor } } }
         }
       });
     }
