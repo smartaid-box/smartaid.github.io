@@ -326,6 +326,65 @@
       font-size: 1.01rem;
       margin: 30px 0 12px 0;
     }
+    /* ── Architecture enhancements ── */
+    .arch-intro {
+      color: var(--muted);
+      font-size: 1.08rem;
+      text-align: center;
+      max-width: 780px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+    }
+    .arch-components-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .arch-component-card {
+      background: rgba(37,99,235,0.06);
+      border: 1px solid rgba(37,99,235,0.14);
+      border-radius: 14px;
+      padding: 18px 14px;
+      text-align: center;
+    }
+    .arch-component-card i {
+      font-size: 1.6rem;
+      color: var(--primary);
+      margin-bottom: 10px;
+      display: block;
+    }
+    .arch-comp-title {
+      font-weight: 700;
+      font-size: 0.97rem;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .arch-comp-desc {
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .arch-components-label {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 0 14px 0;
+    }
+    .arch-data-flow {
+      margin: 18px 0 0 0;
+      font-size: 0.98rem;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.6;
+      padding: 14px 20px;
+      background: rgba(16,185,129,0.06);
+      border-left: 4px solid var(--secondary);
+      border-radius: 10px;
+    }
+    [data-theme="dark"] .arch-data-flow {
+      background: rgba(16,185,129,0.09);
+    }
     @media (max-width: 900px) {
       .architecture-diagram {
         grid-template-columns: 1fr;
@@ -341,6 +400,7 @@
       body { padding-top: 78px; }
       .logo-bar { height: 68px; }
       .logo-img { width: 72px; }
+      .arch-components-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -375,8 +435,37 @@
     <p class="section-desc" id="architecture-desc">
       SmartAid Box continuously tracks critical ambulance supplies, predicts shortages, and synchronizes with cloud and hospital dashboards in real time.
     </p>
+    <p class="arch-intro" id="arch-intro">The SmartAid Box system architecture illustrates how different components interact, including RFID scanning, sensor data processing, cloud storage, and communication with hospital systems.</p>
 
     <div class="glass-card">
+      <p class="arch-components-label" id="arch-components-label">Key System Components</p>
+      <div class="arch-components-grid">
+        <div class="arch-component-card">
+          <i class="fas fa-broadcast-tower"></i>
+          <div class="arch-comp-title" id="comp-rfid-title">RFID Module</div>
+          <div class="arch-comp-desc" id="comp-rfid-desc">Scans and identifies each medicine automatically.</div>
+        </div>
+        <div class="arch-component-card">
+          <i class="fas fa-weight-hanging"></i>
+          <div class="arch-comp-title" id="comp-weight-title">Weight Sensors</div>
+          <div class="arch-comp-desc" id="comp-weight-desc">Measures medicine quantity in real time.</div>
+        </div>
+        <div class="arch-component-card">
+          <i class="fas fa-microchip"></i>
+          <div class="arch-comp-title" id="comp-proc-title">Processing Unit</div>
+          <div class="arch-comp-desc" id="comp-proc-desc">Processes and formats sensor data for transmission.</div>
+        </div>
+        <div class="arch-component-card">
+          <i class="fas fa-cloud"></i>
+          <div class="arch-comp-title" id="comp-cloud-title">Cloud Server</div>
+          <div class="arch-comp-desc" id="comp-cloud-desc">Stores and analyzes inventory data securely.</div>
+        </div>
+        <div class="arch-component-card">
+          <i class="fas fa-hospital"></i>
+          <div class="arch-comp-title" id="comp-hospital-title">Hospital System</div>
+          <div class="arch-comp-desc" id="comp-hospital-desc">Receives real-time updates and alerts from SmartAid Box.</div>
+        </div>
+      </div>
       <div class="architecture-diagram">
         <div class="node" id="node-box">
           <h3 id="node-box-title">SmartAid Box</h3>
@@ -399,6 +488,7 @@
         </div>
       </div>
       <div class="status-line" id="status-line">Live monitoring active</div>
+      <p class="arch-data-flow" id="arch-data-flow">Data flows from the SmartAid Box through the processing unit to the cloud server, where it is stored and shared with hospital systems in real-time.</p>
 
       <div class="insights-grid">
         <div class="sub-card">
@@ -442,6 +532,16 @@
         menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
         architectureTitle: "System Architecture",
         architectureDesc: "SmartAid Box continuously tracks critical ambulance supplies, predicts shortages, and synchronizes with cloud and hospital dashboards in real time.",
+        archIntro: "The SmartAid Box system architecture illustrates how different components interact, including RFID scanning, sensor data processing, cloud storage, and communication with hospital systems.",
+        archComponentsLabel: "Key System Components",
+        archComponents: [
+          ["RFID Module", "Scans and identifies each medicine automatically."],
+          ["Weight Sensors", "Measures medicine quantity in real time."],
+          ["Processing Unit", "Processes and formats sensor data for transmission."],
+          ["Cloud Server", "Stores and analyzes inventory data securely."],
+          ["Hospital System", "Receives real-time updates and alerts from SmartAid Box."]
+        ],
+        archDataFlow: "Data flows from the SmartAid Box through the processing unit to the cloud server, where it is stored and shared with hospital systems in real-time.",
         nodeBoxTitle: "SmartAid Box",
         nodeCloudTitle: "Cloud Database",
         nodeDashTitle: "Hospital Dashboard",
@@ -469,6 +569,16 @@
         menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
         architectureTitle: "الهيكل النظامي",
         architectureDesc: "يقوم صندوق سمارت إيد بتتبع مستلزمات الإسعاف الحيوية باستمرار، ويتنبأ بالنقص، ويزامن البيانات مع السحابة ولوحة المستشفى في الوقت الفعلي.",
+        archIntro: "يوضح الهيكل النظامي لصندوق سمارت إيد كيفية تفاعل المكونات المختلفة، بما في ذلك مسح RFID، ومعالجة بيانات الاستشعار، والتخزين السحابي، والتواصل مع أنظمة المستشفى.",
+        archComponentsLabel: "المكونات الرئيسية للنظام",
+        archComponents: [
+          ["وحدة RFID", "تمسح وتتعرف على كل دواء تلقائيًا."],
+          ["حساسات الوزن", "تقيس كمية الدواء في الوقت الفعلي."],
+          ["وحدة المعالجة", "تعالج بيانات الاستشعار وتهيئها للإرسال."],
+          ["الخادم السحابي", "يخزن بيانات المخزون ويحللها بأمان."],
+          ["نظام المستشفى", "يستقبل التحديثات الفورية والتنبيهات من صندوق سمارت إيد."]
+        ],
+        archDataFlow: "تتدفق البيانات من صندوق سمارت إيد عبر وحدة المعالجة إلى الخادم السحابي، حيث يتم تخزينها ومشاركتها مع أنظمة المستشفى في الوقت الفعلي.",
         nodeBoxTitle: "صندوق سمارت إيد",
         nodeCloudTitle: "قاعدة البيانات السحابية",
         nodeDashTitle: "لوحة تحكم المستشفى",
@@ -520,6 +630,19 @@
       document.getElementById('lang-btn').textContent = lang === 'en' ? 'العربية' : 'English';
       document.getElementById('architecture-title').textContent = t.architectureTitle;
       document.getElementById('architecture-desc').textContent = t.architectureDesc;
+      document.getElementById('arch-intro').textContent = t.archIntro;
+      document.getElementById('arch-components-label').textContent = t.archComponentsLabel;
+      document.getElementById('comp-rfid-title').textContent = t.archComponents[0][0];
+      document.getElementById('comp-rfid-desc').textContent = t.archComponents[0][1];
+      document.getElementById('comp-weight-title').textContent = t.archComponents[1][0];
+      document.getElementById('comp-weight-desc').textContent = t.archComponents[1][1];
+      document.getElementById('comp-proc-title').textContent = t.archComponents[2][0];
+      document.getElementById('comp-proc-desc').textContent = t.archComponents[2][1];
+      document.getElementById('comp-cloud-title').textContent = t.archComponents[3][0];
+      document.getElementById('comp-cloud-desc').textContent = t.archComponents[3][1];
+      document.getElementById('comp-hospital-title').textContent = t.archComponents[4][0];
+      document.getElementById('comp-hospital-desc').textContent = t.archComponents[4][1];
+      document.getElementById('arch-data-flow').textContent = t.archDataFlow;
       document.getElementById('node-box-title').textContent = t.nodeBoxTitle;
       document.getElementById('node-cloud-title').textContent = t.nodeCloudTitle;
       document.getElementById('node-dashboard-title').textContent = t.nodeDashTitle;

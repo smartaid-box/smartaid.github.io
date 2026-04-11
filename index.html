@@ -353,6 +353,120 @@ button:hover,
         width: 100% !important;
         height: 220px !important;
       }
+    /* ── How SmartAid Box Works ── */
+    .workflow-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 700px;
+      margin: 0 auto 40px;
+    }
+    .workflow-step {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px 28px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08);
+    }
+    .step-number {
+      min-width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.18rem;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
+    }
+    .step-text {
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    /* ── System Output Example ── */
+    .output-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 36px;
+      max-width: 440px;
+      margin: 0 auto 40px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+    .output-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(37,99,235,0.08);
+      font-size: 1.05rem;
+    }
+    .output-row:last-child { border-bottom: none; }
+    .output-label { color: var(--muted); font-weight: 600; }
+    .output-value { font-weight: 700; color: var(--text); }
+    .output-value.status-low {
+      color: #e74c3c;
+      background: rgba(231,76,60,0.10);
+      padding: 4px 14px;
+      border-radius: 20px;
+    }
+    /* ── Alert & Notification Example ── */
+    .alerts-box {
+      background: rgba(245,158,66,0.07);
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 28px 36px;
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    .alert-msg {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(245,158,66,0.15);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .alert-msg:last-child { border-bottom: none; padding-bottom: 0; }
+    .alert-msg i { font-size: 1.3rem; color: var(--accent); flex-shrink: 0; }
+    .alert-msg.urgent i { color: #e74c3c; }
+    .alert-msg.sent i { color: var(--secondary); }
+    /* ── Impact on Healthcare ── */
+    .impact-list {
+      list-style: none;
+      padding: 0;
+      max-width: 640px;
+      margin: 0 auto 40px;
+    }
+    .impact-list li {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(37,99,235,0.07);
+      font-size: 1.08rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .impact-list li:last-child { border-bottom: none; }
+    .impact-list li i {
+      font-size: 1.3rem;
+      color: var(--secondary);
+      flex-shrink: 0;
+      width: 28px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -376,6 +490,9 @@ button:hover,
       <a href="#technology" class="menu-item" id="menu-technology">Technology</a>
       <a href="architecture.html" class="menu-item" id="menu-architecture">Architecture</a>
       <a href="statistics.html" class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="#workflow" class="menu-item" id="menu-workflow">How It Works</a>
+      <a href="#alerts" class="menu-item" id="menu-alerts">Alerts</a>
+      <a href="#impact" class="menu-item" id="menu-impact">Impact</a>
       <a href="#team" class="menu-item" id="menu-team">Team</a>
       <a href="#contact" class="menu-item" id="menu-contact">Contact</a>
     </div>
@@ -525,6 +642,82 @@ button:hover,
       </div>
     </div>
   </section>
+  <!-- How SmartAid Box Works -->
+  <section class="container" id="workflow" style="margin-top:80px;">
+    <h2 class="section-title" id="workflow-title">How SmartAid Box Works</h2>
+    <p class="section-desc" id="workflow-desc">A seamless, automated process from medicine detection to hospital notification.</p>
+    <div class="workflow-list">
+      <div class="workflow-step">
+        <div class="step-number">1</div>
+        <div class="step-text" id="workflow-step1">Scan medicine using RFID</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">2</div>
+        <div class="step-text" id="workflow-step2">Identify the medicine automatically</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">3</div>
+        <div class="step-text" id="workflow-step3">Measure quantity using weight sensors</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">4</div>
+        <div class="step-text" id="workflow-step4">Process and store the data</div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-number">5</div>
+        <div class="step-text" id="workflow-step5">Send information to the hospital system</div>
+      </div>
+    </div>
+  </section>
+  <!-- System Output Example -->
+  <section class="container" id="system-output" style="margin-top:80px;">
+    <h2 class="section-title" id="output-title">System Output Example</h2>
+    <p class="section-desc" id="output-desc">A sample of real-time inventory data generated by SmartAid Box.</p>
+    <div class="output-card">
+      <div class="output-row">
+        <span class="output-label" id="output-label1">Medicine Name</span>
+        <span class="output-value" id="output-val1">Paracetamol</span>
+      </div>
+      <div class="output-row">
+        <span class="output-label" id="output-label2">Quantity</span>
+        <span class="output-value" id="output-val2">12 units</span>
+      </div>
+      <div class="output-row">
+        <span class="output-label" id="output-label3">Status</span>
+        <span class="output-value status-low" id="output-val3">Low Stock</span>
+      </div>
+    </div>
+  </section>
+  <!-- Alert & Notification Example -->
+  <section class="container" id="alerts" style="margin-top:80px;">
+    <h2 class="section-title" id="alerts-title">Alert &amp; Notification Example</h2>
+    <p class="section-desc" id="alerts-desc">SmartAid Box automatically triggers alerts when critical conditions are detected.</p>
+    <div class="alerts-box">
+      <div class="alert-msg">
+        <i class="fas fa-exclamation-circle"></i>
+        <span id="alert-msg1">Low stock detected</span>
+      </div>
+      <div class="alert-msg urgent">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span id="alert-msg2">Urgent medicine required</span>
+      </div>
+      <div class="alert-msg sent">
+        <i class="fas fa-paper-plane"></i>
+        <span id="alert-msg3">Notification sent to hospital</span>
+      </div>
+    </div>
+  </section>
+  <!-- Impact on Healthcare -->
+  <section class="container" id="impact" style="margin-top:80px;">
+    <h2 class="section-title" id="impact-title">Impact on Healthcare</h2>
+    <p class="section-desc" id="impact-desc">SmartAid Box transforms emergency medical care by enabling faster, smarter decisions.</p>
+    <ul class="impact-list">
+      <li><i class="fas fa-bolt"></i><span id="impact-item1">Faster emergency response</span></li>
+      <li><i class="fas fa-boxes"></i><span id="impact-item2">Improved resource preparation</span></li>
+      <li><i class="fas fa-shield-alt"></i><span id="impact-item3">Reduced medical errors</span></li>
+      <li><i class="fas fa-hospital-user"></i><span id="impact-item4">Better communication with hospitals</span></li>
+    </ul>
+  </section>
   <!-- Team Section -->
   <section class="container" id="team" style="margin-top:80px;">
     <h2 class="section-title" id="team-title">Our Team</h2>
@@ -610,6 +803,31 @@ button:hover,
           ["Web Dashboard", "Monitor and manage inventory from anywhere."]
         ],
         statsTitle: "Statistics",
+        workflowTitle: "How SmartAid Box Works",
+        workflowDesc: "A seamless, automated process from medicine detection to hospital notification.",
+        workflowSteps: [
+          "Scan medicine using RFID",
+          "Identify the medicine automatically",
+          "Measure quantity using weight sensors",
+          "Process and store the data",
+          "Send information to the hospital system"
+        ],
+        outputTitle: "System Output Example",
+        outputDesc: "A sample of real-time inventory data generated by SmartAid Box.",
+        outputLabels: ["Medicine Name", "Quantity", "Status"],
+        outputValues: ["Paracetamol", "12 units", "Low Stock"],
+        alertsTitle: "Alert & Notification Example",
+        alertsDesc: "SmartAid Box automatically triggers alerts when critical conditions are detected.",
+        alertMsgs: ["Low stock detected", "Urgent medicine required", "Notification sent to hospital"],
+        impactTitle: "Impact on Healthcare",
+        impactDesc: "SmartAid Box transforms emergency medical care by enabling faster, smarter decisions.",
+        impactItems: [
+          "Faster emergency response",
+          "Improved resource preparation",
+          "Reduced medical errors",
+          "Better communication with hospitals"
+        ],
+        menuNewItems: ["How It Works", "Alerts", "Impact"],
         usageLabel: "Usage (per day)",
         distLabel: "Supplies Distribution",
         days: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -670,6 +888,31 @@ button:hover,
           ["لوحة تحكم ويب", "مراقبة وإدارة الجرد من أي مكان."]
         ],
         statsTitle: "الإحصائيات",
+        workflowTitle: "كيف يعمل صندوق سمارت إيد",
+        workflowDesc: "عملية آلية سلسة من اكتشاف الدواء إلى إشعار المستشفى.",
+        workflowSteps: [
+          "مسح الدواء باستخدام RFID",
+          "التعرف على الدواء تلقائيًا",
+          "قياس الكمية باستخدام حساسات الوزن",
+          "معالجة البيانات وتخزينها",
+          "إرسال المعلومات إلى نظام المستشفى"
+        ],
+        outputTitle: "مثال على مخرجات النظام",
+        outputDesc: "نموذج لبيانات المخزون الفورية التي يولدها صندوق سمارت إيد.",
+        outputLabels: ["اسم الدواء", "الكمية", "الحالة"],
+        outputValues: ["باراسيتامول", "12 وحدة", "مخزون منخفض"],
+        alertsTitle: "مثال على التنبيهات والإشعارات",
+        alertsDesc: "يرسل صندوق سمارت إيد تنبيهات تلقائية عند اكتشاف حالات حرجة.",
+        alertMsgs: ["تم اكتشاف مخزون منخفض", "دواء عاجل مطلوب", "تم إرسال إشعار إلى المستشفى"],
+        impactTitle: "الأثر على الرعاية الصحية",
+        impactDesc: "يحوّل صندوق سمارت إيد الرعاية الطبية الطارئة من خلال تمكين قرارات أسرع وأذكى.",
+        impactItems: [
+          "استجابة طارئة أسرع",
+          "تحسين الاستعداد للموارد",
+          "تقليل الأخطاء الطبية",
+          "تواصل أفضل مع المستشفيات"
+        ],
+        menuNewItems: ["كيف يعمل", "التنبيهات", "الأثر"],
         usageLabel: "الاستهلاك (يوميًا)",
         distLabel: "توزيع المستلزمات",
         days: ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"],
@@ -722,6 +965,9 @@ button:hover,
       document.getElementById("menu-statistics").textContent = t.menu[6];
       document.getElementById("menu-team").textContent = t.menu[7];
       document.getElementById("menu-contact").textContent = t.menu[8];
+      document.getElementById("menu-workflow").textContent = t.menuNewItems[0];
+      document.getElementById("menu-alerts").textContent = t.menuNewItems[1];
+      document.getElementById("menu-impact").textContent = t.menuNewItems[2];
       // Problem
       document.getElementById("problem-title").textContent = t.problemTitle;
       document.getElementById("problem-desc").textContent = t.problemDesc;
@@ -765,6 +1011,36 @@ button:hover,
       document.getElementById("tech-card4-desc").textContent = t.techCards[3][1];
       // Statistics
       document.getElementById("stats-title").textContent = t.statsTitle;
+      // How SmartAid Box Works
+      document.getElementById("workflow-title").textContent = t.workflowTitle;
+      document.getElementById("workflow-desc").textContent = t.workflowDesc;
+      document.getElementById("workflow-step1").textContent = t.workflowSteps[0];
+      document.getElementById("workflow-step2").textContent = t.workflowSteps[1];
+      document.getElementById("workflow-step3").textContent = t.workflowSteps[2];
+      document.getElementById("workflow-step4").textContent = t.workflowSteps[3];
+      document.getElementById("workflow-step5").textContent = t.workflowSteps[4];
+      // System Output
+      document.getElementById("output-title").textContent = t.outputTitle;
+      document.getElementById("output-desc").textContent = t.outputDesc;
+      document.getElementById("output-label1").textContent = t.outputLabels[0];
+      document.getElementById("output-label2").textContent = t.outputLabels[1];
+      document.getElementById("output-label3").textContent = t.outputLabels[2];
+      document.getElementById("output-val1").textContent = t.outputValues[0];
+      document.getElementById("output-val2").textContent = t.outputValues[1];
+      document.getElementById("output-val3").textContent = t.outputValues[2];
+      // Alerts
+      document.getElementById("alerts-title").textContent = t.alertsTitle;
+      document.getElementById("alerts-desc").textContent = t.alertsDesc;
+      document.getElementById("alert-msg1").textContent = t.alertMsgs[0];
+      document.getElementById("alert-msg2").textContent = t.alertMsgs[1];
+      document.getElementById("alert-msg3").textContent = t.alertMsgs[2];
+      // Impact
+      document.getElementById("impact-title").textContent = t.impactTitle;
+      document.getElementById("impact-desc").textContent = t.impactDesc;
+      document.getElementById("impact-item1").textContent = t.impactItems[0];
+      document.getElementById("impact-item2").textContent = t.impactItems[1];
+      document.getElementById("impact-item3").textContent = t.impactItems[2];
+      document.getElementById("impact-item4").textContent = t.impactItems[3];
       // Team
       document.getElementById("team-title").textContent = t.teamTitle;
       document.getElementById("team-card1-title").textContent = t.teamCards[0][0];

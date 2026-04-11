@@ -299,6 +299,62 @@
       background: linear-gradient(90deg, var(--primary), var(--secondary));
       transition: width 0.6s;
     }
+    /* ── System Monitoring Overview enhancements ── */
+    .monitoring-subtitle {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin: -6px 0 10px;
+      letter-spacing: -0.3px;
+    }
+    .monitoring-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+    .monitoring-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .monitoring-kpi-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 20px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.10);
+    }
+    .monitoring-kpi-card i {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .monitoring-kpi-card.kpi-low i   { color: #f59e42; }
+    .monitoring-kpi-card.kpi-critical i { color: #e74c3c; }
+    .monitoring-kpi-card.kpi-realtime i { color: var(--secondary); }
+    .monitoring-kpi-value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .monitoring-kpi-card.kpi-low .monitoring-kpi-value    { color: #f59e42; }
+    .monitoring-kpi-card.kpi-critical .monitoring-kpi-value { color: #e74c3c; }
+    .monitoring-kpi-card.kpi-realtime .monitoring-kpi-value { font-size: 1.25rem; color: var(--secondary); }
+    .monitoring-kpi-label {
+      font-size: 0.96rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
     @media (max-width: 600px) {
       .section-title { font-size: 1.3rem;}
       .glass-card { padding: 18px 8px;}
@@ -311,6 +367,7 @@
       .logo-img { width: 72px; }
       .nav-link { font-size: 0.98rem; padding: 8px 12px;}
       .stats-table th, .stats-table td { padding: 8px 4px; font-size: 0.95rem;}
+      .monitoring-kpi-grid { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
@@ -340,6 +397,30 @@
   </div>
   <section class="container" id="statistics">
     <h2 class="section-title" id="stats-title">Statistics</h2>
+    <p class="monitoring-subtitle" id="monitoring-subtitle">System Monitoring Overview</p>
+    <p class="monitoring-desc" id="monitoring-desc">This section demonstrates how the SmartAid Box system monitors medical supplies and provides real-time updates to support decision-making.</p>
+    <div class="monitoring-kpi-grid">
+      <div class="monitoring-kpi-card">
+        <i class="fas fa-pills"></i>
+        <div class="monitoring-kpi-value" id="kpi-total-val">25</div>
+        <div class="monitoring-kpi-label" id="kpi-total-label">Total Medicines</div>
+      </div>
+      <div class="monitoring-kpi-card kpi-low">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="monitoring-kpi-value" id="kpi-low-val">3</div>
+        <div class="monitoring-kpi-label" id="kpi-low-label">Low Stock Items</div>
+      </div>
+      <div class="monitoring-kpi-card kpi-critical">
+        <i class="fas fa-bell"></i>
+        <div class="monitoring-kpi-value" id="kpi-alert-val">1</div>
+        <div class="monitoring-kpi-label" id="kpi-alert-label">Critical Alerts</div>
+      </div>
+      <div class="monitoring-kpi-card kpi-realtime">
+        <i class="fas fa-sync-alt"></i>
+        <div class="monitoring-kpi-value" id="kpi-update-val">Real-time</div>
+        <div class="monitoring-kpi-label" id="kpi-update-label">Last Update</div>
+      </div>
+    </div>
     <div class="glass-grid">
       <div class="glass-card chart-card">
         <h3 class="chart-card-title" id="usage-chart-title">Total & Item Usage</h3>
@@ -435,6 +516,10 @@
         nav: ["Home", "Statistics", "Contact"],
         menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
         statsTitle: "Statistics",
+        monitoringSubtitle: "System Monitoring Overview",
+        monitoringDesc: "This section demonstrates how the SmartAid Box system monitors medical supplies and provides real-time updates to support decision-making.",
+        kpiLabels: ["Total Medicines", "Low Stock Items", "Critical Alerts", "Last Update"],
+        kpiValues: ["25", "3", "1", "Real-time"],
         usageLabel: "Total Usage (per day)",
         usageChartTitle: "Total & Item Usage",
         distLabel: "Supplies Distribution",
@@ -471,6 +556,10 @@
         nav: ["الرئيسية", "الإحصائيات", "اتصل بنا"],
         menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
         statsTitle: "الإحصائيات",
+        monitoringSubtitle: "نظرة عامة على مراقبة النظام",
+        monitoringDesc: "يوضح هذا القسم كيفية مراقبة صندوق سمارت إيد للمستلزمات الطبية وتقديم تحديثات فورية لدعم اتخاذ القرار.",
+        kpiLabels: ["إجمالي الأدوية", "عناصر مخزون منخفض", "تنبيهات حرجة", "آخر تحديث"],
+        kpiValues: ["25", "3", "1", "فوري"],
         usageLabel: "إجمالي الاستهلاك (يوميًا)",
         usageChartTitle: "الاستهلاك الكلي واستهلاك العناصر",
         distLabel: "توزيع المستلزمات",
@@ -524,6 +613,16 @@
       document.getElementById("menu-contact").textContent = t.menu[8];
       // Stats
       document.getElementById("stats-title").textContent = t.statsTitle;
+      document.getElementById("monitoring-subtitle").textContent = t.monitoringSubtitle;
+      document.getElementById("monitoring-desc").textContent = t.monitoringDesc;
+      document.getElementById("kpi-total-label").textContent = t.kpiLabels[0];
+      document.getElementById("kpi-low-label").textContent = t.kpiLabels[1];
+      document.getElementById("kpi-alert-label").textContent = t.kpiLabels[2];
+      document.getElementById("kpi-update-label").textContent = t.kpiLabels[3];
+      document.getElementById("kpi-total-val").textContent = t.kpiValues[0];
+      document.getElementById("kpi-low-val").textContent = t.kpiValues[1];
+      document.getElementById("kpi-alert-val").textContent = t.kpiValues[2];
+      document.getElementById("kpi-update-val").textContent = t.kpiValues[3];
       document.getElementById("footer-text").innerHTML = "&copy; 2026 Smart Aid. " + t.footer;
       document.getElementById("lang-btn").textContent = t.langBtn;
       document.getElementById("resources-title").textContent = t.resourcesTitle;
