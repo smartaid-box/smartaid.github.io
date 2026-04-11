@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartAid Box – Real-Time Dashboard</title>
+  <link rel="icon" type="image/png" href="Smart%20Aid%20Logo.png?v=2">
+
+  <!-- ── Firebase (compat SDK v10) ── -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <!-- ── Fonts & Icons ── -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ── Design tokens (match main site) ── */
+    :root {
+      --primary:    #2563eb;
+      --secondary:  #10b981;
+      --accent:     #f59e42;
+      --bg:         #f3f6fa;
+      --glass:      rgba(255,255,255,0.7);
+      --glass-dark: rgba(16,23,42,0.7);
+      --text:       #1e293b;
+      --muted:      #64748b;
+      --white:      #fff;
+      --shadow:     0 8px 32px rgba(37,99,235,0.10);
+      --radius:     22px;
+      --transition: all 0.3s cubic-bezier(.4,0,.2,1);
+    }
+    [data-theme="dark"] {
+      --bg:         #10172a;
+      --glass:      rgba(16,23,42,0.7);
+      --glass-dark: rgba(16,23,42,0.85);
+      --text:       #f1f5f9;
+      --muted:      #cbd5e1;
+      --white:      #10172a;
+      --primary:    #38bdf8;
+    }
+
+    /* ── Base ── */
+    body {
+      font-family: 'Inter', 'Cairo', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0; padding: 0;
+      transition: var(--transition);
+    }
+    .container { max-width: 1200px; margin: 40px auto; padding: 0 24px; }
+
+    /* ── Keyframes ── */
+    @keyframes bounce {
+      0%   { transform: scale(1); }
+      30%  { transform: scale(1.12); }
+      50%  { transform: scale(0.96); }
+      70%  { transform: scale(1.06); }
+      100% { transform: scale(1); }
+    }
+    @keyframes fadeMenu {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes connPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      50%     { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+    }
+    @keyframes kpiIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Logo bar ── */
+    .logo-bar {
+      width: 100%; height: 80px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--bg);
+      box-shadow: 0 2px 16px rgba(37,99,235,0.07);
+      transition: background 0.3s;
+    }
+    .logo-img { width: 90px; height: auto; object-fit: contain; }
+
+    /* ── Language button ── */
+    .lang-btn {
+      position: fixed; top: 25px; left: 25px; z-index: 10001;
+      padding: 10px 26px; border-radius: 24px;
+      font-size: 1.08rem; font-weight: 700; border: none;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff; box-shadow: var(--shadow); cursor: pointer;
+      transition: background 0.2s;
+    }
+    .lang-btn:hover {
+      background: linear-gradient(90deg, var(--secondary), var(--primary));
+      animation: bounce 0.5s;
+    }
+
+    /* ── Hamburger menu ── */
+    .hamburger-menu { position: fixed; top: 25px; right: 25px; z-index: 10002; width: 50px; height: 50px; }
+    .menu-btn {
+      position: relative; z-index: 10003;
+      width: 50px; height: 50px; border: none; border-radius: 50%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff; cursor: pointer; box-shadow: var(--shadow);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.25rem; transition: transform 0.2s, background 0.2s;
+    }
+    .menu-btn:hover { transform: scale(1.06); background: linear-gradient(90deg, var(--secondary), var(--primary)); }
+    .menu-dropdown {
+      position: fixed; top: 0; right: 0; z-index: 10001;
+      width: min(220px,100vw); height: 100vh;
+      background: var(--glass); backdrop-filter: blur(10px);
+      border: 1px solid rgba(37,99,235,0.10); box-shadow: var(--shadow);
+      padding: 84px 14px 16px; display: none; overflow-y: auto;
+      animation: fadeMenu 0.2s ease-out;
+    }
+    .menu-dropdown.open { display: block; }
+    .menu-item {
+      display: block; width: 100%; box-sizing: border-box;
+      text-decoration: none; color: var(--text); font-weight: 700;
+      padding: 12px 16px; border-radius: 10px;
+      transition: background 0.2s, color 0.2s; text-align: right;
+    }
+    .menu-item:hover,
+    .menu-item.active {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+    }
+
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      position: fixed; bottom: 25px; left: 25px;
+      width: 50px; height: 50px; background: var(--secondary); color: white;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; box-shadow: var(--shadow); font-size: 1.5rem;
+      transition: var(--transition); z-index: 9999; border: none; outline: none;
+    }
+    .theme-toggle:hover { animation: bounce 0.5s; background: var(--primary); }
+
+    /* ── Section titles ── */
+    .section-title {
+      font-size: 2.1rem; font-weight: 800; color: var(--primary);
+      margin-bottom: 6px; text-align: center; letter-spacing: -1px;
+    }
+    .section-subtitle {
+      text-align: center; color: var(--muted);
+      font-size: 1.05rem; margin-bottom: 28px;
+    }
+
+    /* ── Connection badge ── */
+    .conn-bar { display: flex; align-items: center; justify-content: center; margin-bottom: 28px; }
+    .conn-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 7px 20px; border-radius: 30px;
+      font-size: 0.9rem; font-weight: 700;
+      background: rgba(16,185,129,0.12); color: var(--secondary);
+      border: 1.5px solid rgba(16,185,129,0.3); transition: all 0.3s;
+    }
+    .conn-badge.disconnected {
+      background: rgba(231,76,60,0.12); color: #e74c3c;
+      border-color: rgba(231,76,60,0.3);
+    }
+    .conn-dot {
+      width: 9px; height: 9px; border-radius: 50%; background: var(--secondary);
+      animation: connPulse 2s infinite;
+    }
+    .conn-badge.disconnected .conn-dot { background: #e74c3c; animation: none; }
+
+    /* ── KPI Grid ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px; margin-bottom: 16px;
+    }
+    .kpi-card {
+      background: var(--glass); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 32px 20px 24px;
+      text-align: center; backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08);
+      opacity: 0; transform: translateY(18px);
+      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s;
+    }
+    .kpi-card.kpi-visible { opacity: 1; transform: translateY(0); }
+    .kpi-card:hover { box-shadow: 0 14px 44px rgba(37,99,235,0.16); transform: translateY(-4px) !important; }
+    .kpi-card i { font-size: 2rem; margin-bottom: 12px; color: var(--primary); display: block; }
+    .kpi-card.kpi-low      i { color: var(--accent); }
+    .kpi-card.kpi-critical i { color: #e74c3c; }
+    .kpi-card.kpi-update   i { color: var(--secondary); }
+    .kpi-value {
+      font-size: 2.4rem; font-weight: 800;
+      color: var(--primary); line-height: 1; margin-bottom: 8px;
+    }
+    .kpi-card.kpi-low      .kpi-value { color: var(--accent); }
+    .kpi-card.kpi-critical .kpi-value { color: #e74c3c; }
+    .kpi-card.kpi-update   .kpi-value { font-size: 1.1rem; color: var(--secondary); }
+    .kpi-label { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+
+    /* ── Last synced ── */
+    .last-synced {
+      text-align: center; color: var(--muted);
+      font-size: 0.88rem; margin-bottom: 44px;
+    }
+    .last-synced strong { color: var(--primary); }
+
+    /* ── Table section ── */
+    .db-section { margin-bottom: 48px; }
+    .db-section-title {
+      font-size: 1.35rem; font-weight: 800;
+      color: var(--primary); margin-bottom: 18px;
+    }
+    .table-wrap {
+      background: var(--glass); border-radius: var(--radius);
+      box-shadow: var(--shadow); backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08); overflow: hidden;
+    }
+    .medicines-table { width: 100%; border-collapse: collapse; font-size: 0.94rem; }
+    .medicines-table th {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff; padding: 14px 16px;
+      font-weight: 700; font-size: 0.88rem;
+      text-align: left; white-space: nowrap;
+    }
+    [dir="rtl"] .medicines-table th { text-align: right; }
+    .medicines-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid rgba(37,99,235,0.07);
+      color: var(--text); vertical-align: middle;
+    }
+    .medicines-table tbody tr:last-child td { border-bottom: none; }
+    .medicines-table tbody tr {
+      transition: background 0.15s, transform 0.15s;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .medicines-table tbody tr:hover { background: rgba(37,99,235,0.05); transform: translateX(3px); }
+    [dir="rtl"] .medicines-table tbody tr:hover { transform: translateX(-3px); }
+
+    /* ── Status badges ── */
+    .status-badge {
+      display: inline-block; padding: 3px 13px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 700; color: #fff; white-space: nowrap;
+    }
+    .badge-ok       { background: var(--secondary); }
+    .badge-low      { background: var(--accent); }
+    .badge-critical { background: #e74c3c; }
+    .badge-expired  { background: #7c3aed; }
+
+    /* ── Empty / loading states ── */
+    .table-empty {
+      padding: 52px; text-align: center;
+      color: var(--muted); font-size: 0.95rem;
+    }
+    .table-empty i { font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.4; }
+    .loading-spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 2.5px solid rgba(37,99,235,0.2); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 0.75s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    [dir="rtl"] .loading-spinner { margin-right: 0; margin-left: 6px; }
+
+    /* ── Alerts section ── */
+    .alerts-list { display: flex; flex-direction: column; gap: 12px; }
+    .alert-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: var(--glass); border-radius: 14px;
+      box-shadow: 0 2px 12px rgba(37,99,235,0.07);
+      padding: 16px 20px; backdrop-filter: blur(6px);
+      border-left: 4px solid var(--accent);
+      animation: fadeInUp 0.4s ease both;
+    }
+    .alert-item.alert-critical { border-left-color: #e74c3c; }
+    .alert-item.alert-ok       { border-left-color: var(--secondary); }
+    .alert-item.alert-expired  { border-left-color: #7c3aed; }
+    [dir="rtl"] .alert-item                  { border-left: none; border-right: 4px solid var(--accent); }
+    [dir="rtl"] .alert-item.alert-critical   { border-right-color: #e74c3c; }
+    [dir="rtl"] .alert-item.alert-ok         { border-right-color: var(--secondary); }
+    [dir="rtl"] .alert-item.alert-expired    { border-right-color: #7c3aed; }
+    .alert-icon { font-size: 1.25rem; flex-shrink: 0; margin-top: 2px; color: var(--accent); }
+    .alert-item.alert-critical .alert-icon { color: #e74c3c; }
+    .alert-item.alert-ok       .alert-icon { color: var(--secondary); }
+    .alert-item.alert-expired  .alert-icon { color: #7c3aed; }
+    .alert-body { flex: 1; }
+    .alert-msg  { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .alert-time { font-size: 0.78rem; color: var(--muted); margin-top: 3px; }
+    .no-alerts  { text-align: center; color: var(--muted); padding: 36px; font-size: 0.95rem; }
+
+    /* ── Seed button ── */
+    .seed-wrap { text-align: center; margin: 0 0 60px; }
+    .seed-btn {
+      display: inline-flex; align-items: center; gap: 9px;
+      padding: 11px 30px; border-radius: 30px;
+      font-size: 0.92rem; font-weight: 700; border: none;
+      background: linear-gradient(90deg, #7c3aed, #2563eb);
+      color: #fff; cursor: pointer; box-shadow: var(--shadow);
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .seed-btn:hover   { transform: scale(1.04); }
+    .seed-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .seed-hint { display: block; margin-top: 8px; font-size: 0.78rem; color: var(--muted); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 28px 24px;
+      color: var(--muted); font-size: 0.88rem;
+      border-top: 1px solid rgba(37,99,235,0.07);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+      .medicines-table th, .medicines-table td { padding: 10px 10px; font-size: 0.82rem; }
+      .section-title { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Language toggle ── -->
+  <button id="lang-btn" class="lang-btn">العربية</button>
+
+  <!-- ── Hamburger menu ── -->
+  <div class="hamburger-menu" id="hamburger-menu">
+    <button class="menu-btn" id="menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="menu-dropdown">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="menu-dropdown" id="menu-dropdown">
+      <a href="index.html#hero"       class="menu-item" id="menu-home">Home</a>
+      <a href="index.html#problem"    class="menu-item" id="menu-problem">Problem</a>
+      <a href="index.html#solution"   class="menu-item" id="menu-solution">Solution</a>
+      <a href="index.html#features"   class="menu-item" id="menu-features">Features</a>
+      <a href="index.html#technology" class="menu-item" id="menu-technology">Technology</a>
+      <a href="architecture.html"     class="menu-item" id="menu-architecture">Architecture</a>
+      <a href="statistics.html"       class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="dashboard.html"        class="menu-item active" id="menu-dashboard">Dashboard</a>
+      <a href="index.html#team"       class="menu-item" id="menu-team">Team</a>
+      <a href="index.html#contact"    class="menu-item" id="menu-contact">Contact</a>
+    </div>
+  </div>
+
+  <!-- ── Theme toggle ── -->
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <i id="theme-icon" class="fas fa-moon"></i>
+  </button>
+
+  <!-- ── Logo ── -->
+  <div class="logo-bar">
+    <img src="Smart%20Aid%20Logo.png" alt="Smart Aid Logo" class="logo-img">
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION 1 — Real-Time Dashboard        -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="container" id="realtime-dashboard">
+    <h2 class="section-title" id="dashboard-title">Real-Time Dashboard</h2>
+    <p class="section-subtitle" id="dashboard-subtitle">Live medicine inventory powered by Firebase Firestore</p>
+
+    <!-- Connection badge -->
+    <div class="conn-bar">
+      <div class="conn-badge" id="conn-badge">
+        <span class="conn-dot"></span>
+        <span id="conn-text">Connecting…</span>
+      </div>
+    </div>
+
+    <!-- KPI cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card" id="kpi-total">
+        <i class="fas fa-pills"></i>
+        <div class="kpi-value" id="kpi-total-val"><span class="loading-spinner"></span></div>
+        <div class="kpi-label" id="kpi-total-label">Total Medicines</div>
+      </div>
+      <div class="kpi-card kpi-low" id="kpi-low">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="kpi-value" id="kpi-low-val"><span class="loading-spinner"></span></div>
+        <div class="kpi-label" id="kpi-low-label">Low Stock Items</div>
+      </div>
+      <div class="kpi-card kpi-critical" id="kpi-crit">
+        <i class="fas fa-bell"></i>
+        <div class="kpi-value" id="kpi-crit-val"><span class="loading-spinner"></span></div>
+        <div class="kpi-label" id="kpi-crit-label">Critical Alerts</div>
+      </div>
+      <div class="kpi-card kpi-update" id="kpi-update">
+        <i class="fas fa-sync-alt"></i>
+        <div class="kpi-value" id="kpi-update-val">—</div>
+        <div class="kpi-label" id="kpi-update-label">Last Update</div>
+      </div>
+    </div>
+
+    <!-- Last synced timestamp -->
+    <p class="last-synced" id="last-synced-bar">
+      Last synced: <strong id="last-sync-time">—</strong>
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION 2 — Medicines Table            -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="container db-section">
+    <h3 class="db-section-title" id="table-title">Medicines Inventory</h3>
+    <div class="table-wrap">
+      <table class="medicines-table">
+        <thead>
+          <tr>
+            <th id="th-id">Medicine ID</th>
+            <th id="th-name">Medicine Name</th>
+            <th id="th-qty">Quantity</th>
+            <th id="th-exp">Expiry Date</th>
+            <th id="th-status">Status</th>
+            <th id="th-updated">Last Updated</th>
+          </tr>
+        </thead>
+        <tbody id="medicines-tbody">
+          <tr>
+            <td colspan="6" class="table-empty">
+              <i class="fas fa-database"></i>
+              Loading from Firestore…
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION 3 — System Alerts              -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="container db-section">
+    <h3 class="db-section-title" id="alerts-title">System Alerts</h3>
+    <div class="alerts-list" id="alerts-list">
+      <div class="no-alerts" id="alerts-loading">
+        <span class="loading-spinner"></span> Analyzing medicine records…
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  Seed sample data button                -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="container seed-wrap">
+    <button class="seed-btn" id="seed-btn" onclick="seedData()">
+      <i class="fas fa-database"></i>
+      <span id="seed-btn-text">Seed Sample Data</span>
+    </button>
+    <span class="seed-hint" id="seed-hint">
+      Populate Firestore with 7 sample medicine records (skips if data already exists)
+    </span>
+  </div>
+
+  <footer>
+    <span id="footer-text">&copy; 2026 Smart Aid. All rights reserved.</span>
+  </footer>
+
+
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!--  SCRIPTS                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <script>
+
+    // ─────────────────────────────────────────────────────────────────
+    //  FIREBASE CONFIGURATION
+    //  Replace the placeholder values below with your own project
+    //  credentials from: Firebase Console → Project Settings → Your Apps
+    // ─────────────────────────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDFlmmCZRIY-N9DUQ1RtpUW0UskXsTBs7s",
+      authDomain:        "smartaid-box.firebaseapp.com",
+      projectId:         "smartaid-box",
+      storageBucket:     "smartaid-box.firebasestorage.app",
+      messagingSenderId: "803115755311",
+      appId:             "1:803115755311:web:9269e1ac1656f173ee63da",
+      measurementId:     "G-VBHWWVVXLM"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // ─────────────────────────────────────────────────────────────────
+    //  SAMPLE DATA  — written to Firestore when "Seed Sample Data" is clicked
+    //  Collection: "medicines", Document ID = medicine_id
+    // ─────────────────────────────────────────────────────────────────
+    const sampleMedicines = [
+      { medicine_id: "MED-001", name: "Paracetamol",    quantity: 45, expiry_date: "2027-06-30", status: "ok"       },
+      { medicine_id: "MED-002", name: "Saline Solution", quantity: 8, expiry_date: "2026-12-01", status: "low"      },
+      { medicine_id: "MED-003", name: "Epinephrine",    quantity: 2,  expiry_date: "2026-08-15", status: "critical" },
+      { medicine_id: "MED-004", name: "Bandages",       quantity: 60, expiry_date: "2028-01-01", status: "ok"       },
+      { medicine_id: "MED-005", name: "Oxygen Masks",   quantity: 12, expiry_date: "2025-03-01", status: "expired"  },
+      { medicine_id: "MED-006", name: "IV Kits",        quantity: 5,  expiry_date: "2026-09-20", status: "critical" },
+      { medicine_id: "MED-007", name: "Morphine",       quantity: 30, expiry_date: "2027-11-10", status: "ok"       }
+    ];
+
+    // ─────────────────────────────────────────────────────────────────
+    //  TRANSLATIONS
+    // ─────────────────────────────────────────────────────────────────
+    const translations = {
+      en: {
+        langBtn:       "العربية",
+        dashTitle:     "Real-Time Dashboard",
+        dashSubtitle:  "Live medicine inventory powered by Firebase Firestore",
+        connOk:        "Connected to Firestore",
+        connWait:      "Connecting…",
+        connErr:       "Connection Error",
+        kpiLabels:     ["Total Medicines", "Low Stock Items", "Critical Alerts", "Last Update"],
+        lastSynced:    "Last synced:",
+        tableTitle:    "Medicines Inventory",
+        tableHeaders:  ["Medicine ID", "Medicine Name", "Quantity", "Expiry Date", "Status", "Last Updated"],
+        alertsTitle:   "System Alerts",
+        noAlerts:      "No alerts — all medicines are within safe levels.",
+        statusLabels:  { ok: "OK", low: "Low", critical: "Critical", expired: "Expired" },
+        alertMsgs: {
+          critical: function(n) { return "Critical stock: " + n + " — requires immediate restock."; },
+          low:      function(n) { return "Low stock detected: " + n + " — reorder soon."; },
+          expired:  function(n) { return "Expired medicine: " + n + " — must be removed immediately."; },
+          notified: function(n) { return "Hospital system notified: " + n + " flagged for review."; }
+        },
+        seedBtn:       "Seed Sample Data",
+        seedHint:      "Populate Firestore with 7 sample medicine records (skips if data already exists)",
+        seedBusy:      "Seeding…",
+        seedDone:      "Done! Data added to Firestore.",
+        seedExists:    "Data already exists — skipping.",
+        tableLoading:  "Loading from Firestore…",
+        tableEmpty:    "No medicines found in the database.",
+        footer:        "All rights reserved.",
+        menuItems: ["Home","Problem","Solution","Features","Technology","Architecture","Statistics","Dashboard","Team","Contact"]
+      },
+      ar: {
+        langBtn:       "English",
+        dashTitle:     "لوحة المتابعة الفورية",
+        dashSubtitle:  "بيانات المخزون الطبي المباشرة مدعومة بـ Firebase Firestore",
+        connOk:        "متصل بـ Firestore",
+        connWait:      "جارٍ الاتصال…",
+        connErr:       "خطأ في الاتصال",
+        kpiLabels:     ["إجمالي الأدوية", "مخزون منخفض", "تنبيهات حرجة", "آخر تحديث"],
+        lastSynced:    "آخر مزامنة:",
+        tableTitle:    "مخزون الأدوية",
+        tableHeaders:  ["رقم الدواء", "اسم الدواء", "الكمية", "تاريخ الانتهاء", "الحالة", "آخر تحديث"],
+        alertsTitle:   "تنبيهات النظام",
+        noAlerts:      "لا توجد تنبيهات — جميع الأدوية ضمن المستويات الآمنة.",
+        statusLabels:  { ok: "جيد", low: "منخفض", critical: "حرج", expired: "منتهي" },
+        alertMsgs: {
+          critical: function(n) { return "مخزون حرج: " + n + " — يتطلب إعادة تزويد فورية."; },
+          low:      function(n) { return "مخزون منخفض: " + n + " — يرجى إعادة الطلب قريبًا."; },
+          expired:  function(n) { return "دواء منتهي الصلاحية: " + n + " — يجب إزالته فورًا."; },
+          notified: function(n) { return "تم إشعار المستشفى: " + n + " محدد للمراجعة."; }
+        },
+        seedBtn:       "إضافة بيانات تجريبية",
+        seedHint:      "ملء Firestore بـ 7 سجلات أدوية نموذجية (يتخطى إذا كانت البيانات موجودة)",
+        seedBusy:      "جارٍ الإضافة…",
+        seedDone:      "تم! تمت إضافة البيانات إلى Firestore.",
+        seedExists:    "البيانات موجودة بالفعل — تم التخطي.",
+        tableLoading:  "جارٍ التحميل من Firestore…",
+        tableEmpty:    "لا توجد أدوية في قاعدة البيانات.",
+        footer:        "جميع الحقوق محفوظة.",
+        menuItems: ["الرئيسية","المشكلة","الحل","الميزات","التكنولوجيا","الهيكل","الإحصائيات","اللوحة","الفريق","اتصل بنا"]
+      }
+    };
+
+    // ─────────────────────────────────────────────────────────────────
+    //  STATE
+    // ─────────────────────────────────────────────────────────────────
+    var currentLang       = "en";
+    var unsubscribe       = null;   // Firestore real-time listener handle
+    var lastConnState     = "wait";
+    var isDark            = false;
+    var lastMedicinesData = [];     // Cache for re-render on lang switch
+
+    // ─────────────────────────────────────────────────────────────────
+    //  THEME
+    // ─────────────────────────────────────────────────────────────────
+    function applySavedTheme() {
+      isDark = localStorage.getItem("smartaid-theme") === "dark";
+      document.body.setAttribute("data-theme", isDark ? "dark" : "light");
+      document.getElementById("theme-icon").className = isDark ? "fas fa-sun" : "fas fa-moon";
+    }
+    function toggleTheme() {
+      isDark = !isDark;
+      document.body.setAttribute("data-theme", isDark ? "dark" : "light");
+      localStorage.setItem("smartaid-theme", isDark ? "dark" : "light");
+      document.getElementById("theme-icon").className = isDark ? "fas fa-sun" : "fas fa-moon";
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  SET LANGUAGE
+    // ─────────────────────────────────────────────────────────────────
+    function setLang(lang) {
+      currentLang = lang;
+      var t = translations[lang];
+      document.documentElement.lang = lang;
+      document.body.dir = lang === "ar" ? "rtl" : "ltr";
+
+      document.getElementById("lang-btn").textContent          = t.langBtn;
+      document.getElementById("dashboard-title").textContent   = t.dashTitle;
+      document.getElementById("dashboard-subtitle").textContent = t.dashSubtitle;
+      document.getElementById("kpi-total-label").textContent   = t.kpiLabels[0];
+      document.getElementById("kpi-low-label").textContent     = t.kpiLabels[1];
+      document.getElementById("kpi-crit-label").textContent    = t.kpiLabels[2];
+      document.getElementById("kpi-update-label").textContent  = t.kpiLabels[3];
+      document.getElementById("table-title").textContent       = t.tableTitle;
+      document.getElementById("alerts-title").textContent      = t.alertsTitle;
+      document.getElementById("seed-btn-text").textContent     = t.seedBtn;
+      document.getElementById("seed-hint").textContent         = t.seedHint;
+      document.getElementById("footer-text").innerHTML         = "&copy; 2026 Smart Aid. " + t.footer;
+
+      // Last synced label
+      var syncBar = document.getElementById("last-synced-bar");
+      var syncTime = document.getElementById("last-sync-time").textContent;
+      syncBar.innerHTML = t.lastSynced + " <strong id='last-sync-time'>" + syncTime + "</strong>";
+
+      // Table headers
+      var thIds = ["th-id","th-name","th-qty","th-exp","th-status","th-updated"];
+      thIds.forEach(function(id, i) {
+        document.getElementById(id).textContent = t.tableHeaders[i];
+      });
+
+      // Menu items
+      var menuIds = ["menu-home","menu-problem","menu-solution","menu-features",
+                     "menu-technology","menu-architecture","menu-statistics",
+                     "menu-dashboard","menu-team","menu-contact"];
+      menuIds.forEach(function(id, i) {
+        document.getElementById(id).textContent = t.menuItems[i];
+      });
+
+      // Connection badge
+      setConnState(lastConnState);
+
+      // Re-render cached data in new language
+      if (lastMedicinesData.length > 0) {
+        renderTable(lastMedicinesData);
+        renderAlerts(lastMedicinesData);
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  CONNECTION STATE
+    // ─────────────────────────────────────────────────────────────────
+    function setConnState(state) {
+      lastConnState = state;
+      var t     = translations[currentLang];
+      var badge = document.getElementById("conn-badge");
+      var text  = document.getElementById("conn-text");
+      if (state === "ok") {
+        badge.className = "conn-badge";
+        text.textContent = t.connOk;
+      } else if (state === "err") {
+        badge.className = "conn-badge disconnected";
+        text.textContent = t.connErr;
+      } else {
+        badge.className = "conn-badge disconnected";
+        text.textContent = t.connWait;
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  COUNT-UP ANIMATION
+    // ─────────────────────────────────────────────────────────────────
+    function countUp(el, target, duration) {
+      var start = 0;
+      var inc   = target / (duration / 16);
+      function tick() {
+        start = Math.min(start + inc, target);
+        el.textContent = Math.floor(start);
+        if (start < target) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  UPDATE KPI CARDS
+    // ─────────────────────────────────────────────────────────────────
+    function updateKPIs(medicines) {
+      var total = medicines.length;
+      var low   = medicines.filter(function(m) { return m.status === "low"; }).length;
+      var crit  = medicines.filter(function(m) { return m.status === "critical" || m.status === "expired"; }).length;
+
+      countUp(document.getElementById("kpi-total-val"), total, 700);
+      countUp(document.getElementById("kpi-low-val"),   low,   600);
+      countUp(document.getElementById("kpi-crit-val"),  crit,  500);
+
+      var now = new Date();
+      var pad = function(n) { return String(n).padStart(2, "0"); };
+      var ts  = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+      document.getElementById("kpi-update-val").textContent  = ts;
+      document.getElementById("last-sync-time").textContent  = ts;
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  RENDER MEDICINES TABLE
+    // ─────────────────────────────────────────────────────────────────
+    function renderTable(medicines) {
+      var t     = translations[currentLang];
+      var tbody = document.getElementById("medicines-tbody");
+
+      if (!medicines || medicines.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="table-empty"><i class="fas fa-inbox"></i>' + t.tableEmpty + '</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = "";
+      medicines.forEach(function(med, i) {
+        var badgeClass = { ok: "badge-ok", low: "badge-low", critical: "badge-critical", expired: "badge-expired" }[med.status] || "badge-ok";
+        var badgeText  = t.statusLabels[med.status] || med.status;
+
+        // Format Firestore timestamp or fallback
+        var updatedStr = "—";
+        if (med.last_updated && med.last_updated.toDate) {
+          var d = med.last_updated.toDate();
+          updatedStr = d.toLocaleDateString(currentLang === "ar" ? "ar-SA" : "en-US", { year: "numeric", month: "short", day: "numeric" });
+        }
+
+        var tr = document.createElement("tr");
+        tr.style.animationDelay = (i * 55) + "ms";
+        tr.innerHTML =
+          '<td><code style="font-size:0.82rem;color:var(--muted)">' + med.medicine_id + '</code></td>' +
+          '<td><strong>' + med.name + '</strong></td>' +
+          '<td><strong style="font-size:1.05rem">' + med.quantity + '</strong></td>' +
+          '<td>' + med.expiry_date + '</td>' +
+          '<td><span class="status-badge ' + badgeClass + '">' + badgeText + '</span></td>' +
+          '<td style="font-size:0.82rem;color:var(--muted)">' + updatedStr + '</td>';
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  RENDER ALERTS  (generated from medicine statuses)
+    // ─────────────────────────────────────────────────────────────────
+    function renderAlerts(medicines) {
+      var t    = translations[currentLang];
+      var list = document.getElementById("alerts-list");
+      var alerts = [];
+
+      medicines.forEach(function(med) {
+        if (med.status === "expired") {
+          alerts.push({ type: "expired",  icon: "fa-ban",               msg: t.alertMsgs.expired(med.name) });
+          alerts.push({ type: "ok",       icon: "fa-hospital",          msg: t.alertMsgs.notified(med.name) });
+        } else if (med.status === "critical") {
+          alerts.push({ type: "critical", icon: "fa-bell",              msg: t.alertMsgs.critical(med.name) });
+          alerts.push({ type: "ok",       icon: "fa-hospital",          msg: t.alertMsgs.notified(med.name) });
+        } else if (med.status === "low") {
+          alerts.push({ type: "low",      icon: "fa-exclamation-circle",msg: t.alertMsgs.low(med.name) });
+        }
+      });
+
+      if (alerts.length === 0) {
+        list.innerHTML =
+          '<div class="no-alerts">' +
+          '<i class="fas fa-check-circle" style="color:var(--secondary);font-size:1.8rem;display:block;margin-bottom:10px"></i>' +
+          t.noAlerts + '</div>';
+        return;
+      }
+
+      list.innerHTML = "";
+      var timeStr = new Date().toLocaleTimeString();
+      alerts.forEach(function(alert, i) {
+        var typeClass = { critical: "alert-critical", expired: "alert-expired", ok: "alert-ok", low: "" }[alert.type] || "";
+        var div = document.createElement("div");
+        div.className = "alert-item " + typeClass;
+        div.style.animationDelay = (i * 70) + "ms";
+        div.innerHTML =
+          '<i class="fas ' + alert.icon + ' alert-icon"></i>' +
+          '<div class="alert-body">' +
+            '<div class="alert-msg">' + alert.msg + '</div>' +
+            '<div class="alert-time">' + timeStr + '</div>' +
+          '</div>';
+        list.appendChild(div);
+      });
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  FIRESTORE REAL-TIME LISTENER
+    //  Uses onSnapshot — updates automatically whenever Firestore changes
+    // ─────────────────────────────────────────────────────────────────
+    function startListener() {
+      setConnState("wait");
+      try {
+        unsubscribe = db.collection("medicines")
+          .orderBy("medicine_id")
+          .onSnapshot(
+            function(snapshot) {
+              setConnState("ok");
+
+              var medicines = [];
+              snapshot.forEach(function(doc) {
+                medicines.push(Object.assign({ _docId: doc.id }, doc.data()));
+              });
+
+              lastMedicinesData = medicines;
+              updateKPIs(medicines);
+              renderTable(medicines);
+              renderAlerts(medicines);
+
+              // Animate KPI cards on first load
+              document.querySelectorAll(".kpi-card").forEach(function(card, i) {
+                setTimeout(function() { card.classList.add("kpi-visible"); }, i * 120);
+              });
+            },
+            function(error) {
+              console.error("Firestore listener error:", error);
+              setConnState("err");
+              document.getElementById("medicines-tbody").innerHTML =
+                '<tr><td colspan="6" class="table-empty">' +
+                '<i class="fas fa-exclamation-triangle" style="color:#e74c3c"></i>' +
+                'Could not connect to Firestore. Check your Firebase configuration above.' +
+                '</td></tr>';
+              document.getElementById("alerts-list").innerHTML =
+                '<div class="no-alerts" style="color:#e74c3c">' +
+                '<i class="fas fa-exclamation-triangle" style="display:block;margin-bottom:8px;font-size:1.6rem"></i>' +
+                'Firebase connection failed — see browser console for details.</div>';
+              // Show KPI cards anyway (with dashes)
+              ["kpi-total-val","kpi-low-val","kpi-crit-val"].forEach(function(id) {
+                document.getElementById(id).textContent = "—";
+              });
+              document.querySelectorAll(".kpi-card").forEach(function(card, i) {
+                setTimeout(function() { card.classList.add("kpi-visible"); }, i * 120);
+              });
+            }
+          );
+      } catch (e) {
+        console.error("Firebase init error:", e);
+        setConnState("err");
+      }
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  SEED SAMPLE DATA
+    //  Writes sampleMedicines to Firestore (skips if collection exists)
+    // ─────────────────────────────────────────────────────────────────
+    function seedData() {
+      var btn  = document.getElementById("seed-btn");
+      var span = document.getElementById("seed-btn-text");
+      var t    = translations[currentLang];
+
+      btn.disabled = true;
+      span.textContent = t.seedBusy;
+
+      // Check if any documents already exist
+      db.collection("medicines").limit(1).get()
+        .then(function(snap) {
+          if (!snap.empty) {
+            span.textContent = t.seedExists;
+            setTimeout(function() {
+              btn.disabled = false;
+              span.textContent = t.seedBtn;
+            }, 2500);
+            return;
+          }
+
+          // Batch-write all sample records
+          var batch = db.batch();
+          sampleMedicines.forEach(function(med) {
+            var ref = db.collection("medicines").doc(med.medicine_id);
+            batch.set(ref, Object.assign({}, med, {
+              last_updated: firebase.firestore.FieldValue.serverTimestamp()
+            }));
+          });
+
+          batch.commit()
+            .then(function() {
+              span.textContent = t.seedDone;
+              setTimeout(function() {
+                btn.disabled = false;
+                span.textContent = t.seedBtn;
+              }, 2500);
+            })
+            .catch(function(err) {
+              console.error("Seed write error:", err);
+              btn.disabled = false;
+              span.textContent = t.seedBtn;
+            });
+        })
+        .catch(function(err) {
+          console.error("Seed check error:", err);
+          btn.disabled = false;
+          span.textContent = t.seedBtn;
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  AUTO-SIMULATE CONSUMPTION
+    //  Every 20 seconds, randomly picks 1-2 medicines and decreases
+    //  their quantity by 1-3 units in Firestore. The onSnapshot listener
+    //  picks up the change and updates the dashboard automatically.
+    //  Stops decreasing once quantity reaches 1 (minimum safe level).
+    // ─────────────────────────────────────────────────────────────────
+    function startAutoConsumption() {
+      setInterval(function() {
+        db.collection("medicines").get().then(function(snapshot) {
+          if (snapshot.empty) return;
+
+          // Pick 1-2 random documents to consume
+          var docs = [];
+          snapshot.forEach(function(doc) { docs.push(doc); });
+          var shuffled = docs.sort(function() { return Math.random() - 0.5; });
+          var picks = shuffled.slice(0, Math.random() < 0.5 ? 1 : 2);
+
+          picks.forEach(function(doc) {
+            var data = doc.data();
+            var qty  = data.quantity || 0;
+            if (qty <= 1) return; // already at minimum
+
+            var consume  = Math.floor(Math.random() * 3) + 1; // 1-3 units
+            var newQty   = Math.max(1, qty - consume);
+            var newStatus = newQty <= 5  ? "critical"
+                          : newQty <= 15 ? "low"
+                          : "ok";
+            // Keep "expired" status unchanged
+            if (data.status === "expired") newStatus = "expired";
+
+            db.collection("medicines").doc(doc.id).update({
+              quantity:     newQty,
+              status:       newStatus,
+              last_updated: firebase.firestore.FieldValue.serverTimestamp()
+            }).catch(function(err) { console.error("Auto-update error:", err); });
+          });
+        }).catch(function(err) { console.error("Auto-consumption fetch error:", err); });
+      }, 20000); // every 20 seconds
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    //  INIT
+    // ─────────────────────────────────────────────────────────────────
+    window.addEventListener("DOMContentLoaded", function() {
+      applySavedTheme();
+      setLang("en");
+      startListener();
+      startAutoConsumption();
+
+      // Hamburger menu
+      var menuBtn      = document.getElementById("menu-btn");
+      var menuDropdown = document.getElementById("menu-dropdown");
+      menuBtn.onclick = function(e) {
+        e.stopPropagation();
+        var isOpen = menuDropdown.classList.toggle("open");
+        menuBtn.setAttribute("aria-expanded", String(isOpen));
+      };
+      document.addEventListener("click", function() {
+        menuDropdown.classList.remove("open");
+        menuBtn.setAttribute("aria-expanded", "false");
+      });
+
+      // Language toggle
+      document.getElementById("lang-btn").onclick = function() {
+        setLang(currentLang === "en" ? "ar" : "en");
+      };
+    });
+
+  </script>
+</body>
+</html>

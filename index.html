@@ -252,7 +252,9 @@ button:hover,
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
+      line-height: 1.85;
     }
+    .section-desc strong { color: var(--primary); font-weight: 700; }
     .section-cta-wrap {
       text-align: center;
       margin: 8px 0 0 0;
@@ -285,13 +287,17 @@ button:hover,
       padding: 36px 28px;
       text-align: center;
       backdrop-filter: blur(8px);
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1), box-shadow 0.25s cubic-bezier(.4,0,.2,1);
       border: 1px solid rgba(37,99,235,0.08);
       position: relative;
       overflow: hidden;
       opacity: 0;
       transform: translateY(30px);
       animation: fadeInUp 0.8s forwards;
+    }
+    .glass-card:hover {
+      transform: translateY(-6px) scale(1.025);
+      box-shadow: 0 18px 48px rgba(37,99,235,0.16);
     }
     .glass-card i {
       font-size: 2.5rem;
@@ -311,12 +317,54 @@ button:hover,
     @keyframes fadeInUp {
       to { opacity: 1; transform: translateY(0);}
     }
-    .footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 1.01rem;
-      margin: 40px 0 10px 0;
+
+    /* ── Section reveal on scroll ── */
+    .section-reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.6s cubic-bezier(.4,0,.2,1), transform 0.6s cubic-bezier(.4,0,.2,1);
     }
+    .section-reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── Section title icon ── */
+    .section-title .title-icon {
+      font-size: 1.55rem;
+      margin-right: 10px;
+      vertical-align: middle;
+      opacity: 0.85;
+    }
+    [dir="rtl"] .section-title .title-icon {
+      margin-right: 0;
+      margin-left: 10px;
+    }
+
+    /* ── Workflow step hover ── */
+    .workflow-step {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .workflow-step:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 18px rgba(37,99,235,0.10);
+    }
+    [dir="rtl"] .workflow-step:hover {
+      transform: translateX(-5px);
+    }
+
+    /* ── Impact list item hover ── */
+    .impact-list li {
+      transition: transform 0.2s, color 0.2s;
+    }
+    .impact-list li:hover {
+      transform: translateX(5px);
+      color: var(--primary);
+    }
+    [dir="rtl"] .impact-list li:hover {
+      transform: translateX(-5px);
+    }
+
     @media (max-width: 600px) {
       .hero-title { font-size: 1.5rem;}
       .section-title { font-size: 1.3rem;}
@@ -353,6 +401,68 @@ button:hover,
         width: 100% !important;
         height: 220px !important;
       }
+    /* ── Stats monitoring KPI dashboard ── */
+    .stats-monitor-subtitle {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      margin: -10px 0 10px;
+    }
+    .stats-monitor-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      text-align: center;
+      max-width: 680px;
+      margin: 0 auto 30px;
+      line-height: 1.7;
+    }
+    .stats-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 20px;
+      margin-bottom: 36px;
+    }
+    .stats-kpi-card {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 20px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.10);
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease, box-shadow 0.2s;
+    }
+    .stats-kpi-card:hover { box-shadow: 0 12px 40px rgba(37,99,235,0.18); }
+    .stats-kpi-card.kpi-visible { opacity: 1; transform: translateY(0); }
+    .stats-kpi-card i {
+      font-size: 1.8rem;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .stats-kpi-card.kpi-warn  { border-color: rgba(245,158,66,0.32); }
+    .stats-kpi-card.kpi-danger { border-color: rgba(231,76,60,0.32); }
+    .stats-kpi-card.kpi-warn   i { color: #f59e42; }
+    .stats-kpi-card.kpi-danger i { color: #e74c3c; }
+    .stats-kpi-card.kpi-live  i { color: var(--secondary); }
+    .stats-kpi-value {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .stats-kpi-card.kpi-warn   .stats-kpi-value { color: #f59e42; }
+    .stats-kpi-card.kpi-danger .stats-kpi-value { color: #e74c3c; }
+    .stats-kpi-card.kpi-live   .stats-kpi-value { font-size: 1.2rem; color: var(--secondary); }
+    .stats-kpi-label {
+      font-size: 0.96rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
     /* ── How SmartAid Box Works ── */
     .workflow-list {
       display: flex;
@@ -490,6 +600,7 @@ button:hover,
       <a href="#technology" class="menu-item" id="menu-technology">Technology</a>
       <a href="architecture.html" class="menu-item" id="menu-architecture">Architecture</a>
       <a href="statistics.html" class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="dashboard.html" class="menu-item" id="menu-dashboard">Dashboard</a>
       <a href="#workflow" class="menu-item" id="menu-workflow">How It Works</a>
       <a href="#alerts" class="menu-item" id="menu-alerts">Alerts</a>
       <a href="#impact" class="menu-item" id="menu-impact">Impact</a>
@@ -517,7 +628,7 @@ button:hover,
     </nav>
   </section>
   <!-- Problem Section -->
-  <section class="container" id="problem" style="margin-top:80px;">
+  <section class="container section-reveal" id="problem" style="margin-top:80px;">
     <h2 class="section-title" id="problem-title">The Problem</h2>
     <p class="section-desc" id="problem-desc">
       Ambulances often face delays due to missing, misplaced, or insufficient medical supplies. Manual inventory checks are slow and error-prone, risking patient safety in emergencies.
@@ -541,7 +652,7 @@ button:hover,
     </div>
   </section>
   <!-- Solution Section -->
-  <section class="container" id="solution" style="margin-top:80px;">
+  <section class="container section-reveal" id="solution" style="margin-top:80px;">
     <h2 class="section-title" id="solution-title">The Solution</h2>
     <p class="section-desc" id="solution-desc">
       SmartAid Box automates ambulance inventory using RFID tags and sensors. It tracks every item in real time, sends alerts for shortages, and updates hospital systems instantly.
@@ -570,7 +681,7 @@ button:hover,
     </div>
   </section>
   <!-- Features Section -->
-  <section class="container" id="features" style="margin-top:80px;">
+  <section class="container section-reveal" id="features" style="margin-top:80px;">
     <h2 class="section-title" id="features-title">Key Features</h2>
     <div class="glass-grid">
       <div class="glass-card" style="animation-delay:0.1s">
@@ -596,7 +707,7 @@ button:hover,
     </div>
   </section>
   <!-- Technology Section -->
-  <section class="container" id="technology" style="margin-top:80px;">
+  <section class="container section-reveal" id="technology" style="margin-top:80px;">
     <h2 class="section-title" id="tech-title">Technology Stack</h2>
     <div class="glass-grid">
       <div class="glass-card" style="animation-delay:0.1s">
@@ -625,8 +736,32 @@ button:hover,
     </div>
   </section>
   <!-- Statistics Section -->
-  <section class="container" id="statistics" style="margin-top:80px;">
-    <h2 class="section-title" id="stats-title">Statistics</h2>
+  <section class="container section-reveal" id="statistics" style="margin-top:80px;">
+    <h2 class="section-title" id="stats-title"><i class="fas fa-chart-bar title-icon"></i>Statistics</h2>
+    <p class="stats-monitor-subtitle" id="stats-monitor-subtitle">System Monitoring Overview</p>
+    <p class="stats-monitor-desc" id="stats-monitor-desc">This section demonstrates how the SmartAid Box system monitors medical supplies and provides real-time updates.</p>
+    <div class="stats-kpi-grid">
+      <div class="stats-kpi-card" id="idx-kpi-card-total">
+        <i class="fas fa-pills"></i>
+        <div class="stats-kpi-value" id="idx-kpi-total-val">0</div>
+        <div class="stats-kpi-label" id="idx-kpi-total-label">Total Medicines</div>
+      </div>
+      <div class="stats-kpi-card kpi-warn" id="idx-kpi-card-low">
+        <i class="fas fa-exclamation-circle"></i>
+        <div class="stats-kpi-value" id="idx-kpi-low-val">0</div>
+        <div class="stats-kpi-label" id="idx-kpi-low-label">Low Stock Items</div>
+      </div>
+      <div class="stats-kpi-card kpi-danger" id="idx-kpi-card-alert">
+        <i class="fas fa-bell"></i>
+        <div class="stats-kpi-value" id="idx-kpi-alert-val">0</div>
+        <div class="stats-kpi-label" id="idx-kpi-alert-label">Critical Alerts</div>
+      </div>
+      <div class="stats-kpi-card kpi-live" id="idx-kpi-card-update">
+        <i class="fas fa-sync-alt"></i>
+        <div class="stats-kpi-value" id="idx-kpi-update-val">—</div>
+        <div class="stats-kpi-label" id="idx-kpi-update-label">Last Update</div>
+      </div>
+    </div>
     <div class="glass-grid">
       <div class="glass-card" style="animation-delay:0.1s">
           <canvas id="usageChart"></canvas>
@@ -643,8 +778,8 @@ button:hover,
     </div>
   </section>
   <!-- How SmartAid Box Works -->
-  <section class="container" id="workflow" style="margin-top:80px;">
-    <h2 class="section-title" id="workflow-title">How SmartAid Box Works</h2>
+  <section class="container section-reveal" id="workflow" style="margin-top:80px;">
+    <h2 class="section-title" id="workflow-title"><i class="fas fa-route title-icon"></i>How SmartAid Box Works</h2>
     <p class="section-desc" id="workflow-desc">A seamless, automated process from medicine detection to hospital notification.</p>
     <div class="workflow-list">
       <div class="workflow-step">
@@ -670,8 +805,8 @@ button:hover,
     </div>
   </section>
   <!-- System Output Example -->
-  <section class="container" id="system-output" style="margin-top:80px;">
-    <h2 class="section-title" id="output-title">System Output Example</h2>
+  <section class="container section-reveal" id="system-output" style="margin-top:80px;">
+    <h2 class="section-title" id="output-title"><i class="fas fa-table title-icon"></i>System Output Example</h2>
     <p class="section-desc" id="output-desc">A sample of real-time inventory data generated by SmartAid Box.</p>
     <div class="output-card">
       <div class="output-row">
@@ -689,8 +824,8 @@ button:hover,
     </div>
   </section>
   <!-- Alert & Notification Example -->
-  <section class="container" id="alerts" style="margin-top:80px;">
-    <h2 class="section-title" id="alerts-title">Alert &amp; Notification Example</h2>
+  <section class="container section-reveal" id="alerts" style="margin-top:80px;">
+    <h2 class="section-title" id="alerts-title"><i class="fas fa-bell title-icon"></i>Alert &amp; Notification Example</h2>
     <p class="section-desc" id="alerts-desc">SmartAid Box automatically triggers alerts when critical conditions are detected.</p>
     <div class="alerts-box">
       <div class="alert-msg">
@@ -708,8 +843,8 @@ button:hover,
     </div>
   </section>
   <!-- Impact on Healthcare -->
-  <section class="container" id="impact" style="margin-top:80px;">
-    <h2 class="section-title" id="impact-title">Impact on Healthcare</h2>
+  <section class="container section-reveal" id="impact" style="margin-top:80px;">
+    <h2 class="section-title" id="impact-title"><i class="fas fa-heartbeat title-icon"></i>Impact on Healthcare</h2>
     <p class="section-desc" id="impact-desc">SmartAid Box transforms emergency medical care by enabling faster, smarter decisions.</p>
     <ul class="impact-list">
       <li><i class="fas fa-bolt"></i><span id="impact-item1">Faster emergency response</span></li>
@@ -719,7 +854,7 @@ button:hover,
     </ul>
   </section>
   <!-- Team Section -->
-  <section class="container" id="team" style="margin-top:80px;">
+  <section class="container section-reveal" id="team" style="margin-top:80px;">
     <h2 class="section-title" id="team-title">Our Team</h2>
     <div class="glass-grid">
       <div class="glass-card" style="animation-delay:0.1s">
@@ -745,7 +880,7 @@ button:hover,
     </div>
   </section>
   <!-- Contact Section -->
-  <section class="container" id="contact" style="margin-top:80px;">
+  <section class="container section-reveal" id="contact" style="margin-top:80px;">
     <h2 class="section-title" id="contact-title">Contact</h2>
     <div class="glass-grid">
       <div class="glass-card" style="animation-delay:0.1s">
@@ -768,19 +903,19 @@ button:hover,
     const translations = {
       en: {
         heroTitle: "SmartAid Box – Smarter Ambulances, Faster Emergency Care",
-        heroDesc: "SmartAid Box is an IoT-enabled medical inventory system for ambulances. Using RFID and sensors, it ensures critical supplies are always available and integrates with hospital systems in real time.",
+        heroDesc: "SmartAid Box is an <strong>IoT-enabled medical inventory system</strong> for ambulances. Using <strong>RFID and weight sensors</strong>, it ensures critical supplies are always available and integrates with hospital systems in <strong>real time</strong>.",
         cta: "Learn More",
-        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
+        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Dashboard", "Team", "Contact"],
         nav: ["Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
         problemTitle: "The Problem",
-        problemDesc: "Ambulances often face delays due to missing, misplaced, or insufficient medical supplies. Manual inventory checks are slow and error-prone, risking patient safety in emergencies.",
+        problemDesc: "Ambulances often face delays due to <strong>missing, misplaced, or insufficient</strong> medical supplies.<br>Manual inventory checks are <strong>slow and error-prone</strong>, putting <strong>patient safety</strong> at risk in emergencies.",
         problemCards: [
           ["Time-Consuming Checks", "Manual inventory takes time and can delay emergency response."],
           ["Human Error", "Mistakes in checking supplies can lead to missing critical items."],
           ["Expired or Missing Items", "Supplies may be expired or missing, risking patient care."]
         ],
         solutionTitle: "The Solution",
-        solutionDesc: "SmartAid Box automates ambulance inventory using RFID tags and sensors. It tracks every item in real time, sends alerts for shortages, and updates hospital systems instantly.",
+        solutionDesc: "SmartAid Box <strong>automates</strong> ambulance inventory using <strong>RFID tags and sensors</strong>.<br>It tracks every item in <strong>real time</strong>, sends <strong>alerts for shortages</strong>, and updates hospital systems <strong>instantly</strong>.",
         solutionCards: [
           ["RFID Tagging", "Each medical item is tagged for automatic identification."],
           ["Weight Sensors", "Sensors detect item removal or addition instantly."],
@@ -803,8 +938,12 @@ button:hover,
           ["Web Dashboard", "Monitor and manage inventory from anywhere."]
         ],
         statsTitle: "Statistics",
+        statsMonitorSubtitle: "System Monitoring Overview",
+        statsMonitorDesc: "SmartAid Box continuously <strong>monitors medical supplies</strong> and delivers <strong>real-time updates</strong> to support faster, smarter decision-making.",
+        statsKpiLabels: ["Total Medicines", "Low Stock Items", "Critical Alerts", "Last Update"],
+        statsKpiRealtime: "Real-time",
         workflowTitle: "How SmartAid Box Works",
-        workflowDesc: "A seamless, automated process from medicine detection to hospital notification.",
+        workflowDesc: "A seamless, <strong>automated process</strong> — from medicine detection to <strong>hospital notification</strong>.",
         workflowSteps: [
           "Scan medicine using RFID",
           "Identify the medicine automatically",
@@ -813,14 +952,14 @@ button:hover,
           "Send information to the hospital system"
         ],
         outputTitle: "System Output Example",
-        outputDesc: "A sample of real-time inventory data generated by SmartAid Box.",
+        outputDesc: "A sample of <strong>real-time inventory data</strong> generated by SmartAid Box.",
         outputLabels: ["Medicine Name", "Quantity", "Status"],
         outputValues: ["Paracetamol", "12 units", "Low Stock"],
         alertsTitle: "Alert & Notification Example",
-        alertsDesc: "SmartAid Box automatically triggers alerts when critical conditions are detected.",
+        alertsDesc: "SmartAid Box automatically triggers <strong>smart alerts</strong> when <strong>critical conditions</strong> are detected.",
         alertMsgs: ["Low stock detected", "Urgent medicine required", "Notification sent to hospital"],
         impactTitle: "Impact on Healthcare",
-        impactDesc: "SmartAid Box transforms emergency medical care by enabling faster, smarter decisions.",
+        impactDesc: "SmartAid Box transforms <strong>emergency medical care</strong> by enabling faster response, smarter decisions, and <strong>better patient outcomes</strong>.",
         impactItems: [
           "Faster emergency response",
           "Improved resource preparation",
@@ -853,19 +992,19 @@ button:hover,
       },
       ar: {
         heroTitle: "صندوق سمارت إيد – سيارات إسعاف أذكى، ورعاية طبية أسرع",
-        heroDesc: "صندوق سمارت إيد هو نظام جرد طبي ذكي لسيارات الإسعاف يعمل بتقنية إنترنت الأشياء. باستخدام RFID وأجهزة الاستشعار، يضمن توفر المستلزمات الحيوية دائمًا ويتكامل مع أنظمة المستشفيات في الوقت الفعلي.",
+        heroDesc: "صندوق سمارت إيد هو <strong>نظام جرد طبي ذكي</strong> لسيارات الإسعاف يعمل بتقنية إنترنت الأشياء. باستخدام <strong>RFID وأجهزة الاستشعار</strong>، يضمن توفر المستلزمات الحيوية دائمًا ويتكامل مع أنظمة المستشفيات في <strong>الوقت الفعلي</strong>.",
         cta: "اعرف المزيد",
-        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
+        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "اللوحة", "الفريق", "اتصل بنا"],
         nav: ["المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
         problemTitle: "المشكلة",
-        problemDesc: "غالبًا ما تواجه سيارات الإسعاف تأخيرات بسبب نقص أو فقدان أو عدم كفاية المستلزمات الطبية. الفحص اليدوي للجرد بطيء وعرضة للأخطاء، مما يعرض سلامة المرضى للخطر في حالات الطوارئ.",
+        problemDesc: "غالبًا ما تواجه سيارات الإسعاف تأخيرات بسبب <strong>نقص أو فقدان</strong> المستلزمات الطبية.<br>الفحص اليدوي للجرد <strong>بطيء وعرضة للأخطاء</strong>، مما يعرض <strong>سلامة المرضى</strong> للخطر في حالات الطوارئ.",
         problemCards: [
           ["فحوصات تستغرق وقتًا", "الفحص اليدوي للجرد يستغرق وقتًا وقد يؤخر الاستجابة للطوارئ."],
           ["خطأ بشري", "الأخطاء في فحص المستلزمات قد تؤدي إلى فقدان عناصر حيوية."],
           ["عناصر منتهية أو مفقودة", "قد تكون المستلزمات منتهية أو مفقودة، مما يعرض رعاية المرضى للخطر."]
         ],
         solutionTitle: "الحل",
-        solutionDesc: "يعمل صندوق سمارت إيد على أتمتة جرد سيارات الإسعاف باستخدام علامات RFID وأجهزة الاستشعار. يتتبع كل عنصر في الوقت الفعلي، ويرسل تنبيهات عند النقص، ويحدث أنظمة المستشفى فورًا.",
+        solutionDesc: "يعمل صندوق سمارت إيد على <strong>أتمتة جرد سيارات الإسعاف</strong> باستخدام <strong>علامات RFID وأجهزة الاستشعار</strong>.<br>يتتبع كل عنصر في <strong>الوقت الفعلي</strong>، ويرسل <strong>تنبيهات عند النقص</strong>، ويحدث أنظمة المستشفى <strong>فورًا</strong>.",
         solutionCards: [
           ["ترميز RFID", "يتم ترميز كل عنصر طبي تلقائيًا."],
           ["حساسات الوزن", "تكتشف الحساسات إزالة أو إضافة العناصر فورًا."],
@@ -888,8 +1027,12 @@ button:hover,
           ["لوحة تحكم ويب", "مراقبة وإدارة الجرد من أي مكان."]
         ],
         statsTitle: "الإحصائيات",
+        statsMonitorSubtitle: "نظرة عامة على مراقبة النظام",
+        statsMonitorDesc: "يوضح هذا القسم كيفية <strong>مراقبة المستلزمات الطبية</strong> وتقديم <strong>تحديثات فورية</strong> لدعم اتخاذ قرارات أسرع وأذكى.",
+        statsKpiLabels: ["إجمالي الأدوية", "عناصر مخزون منخفض", "تنبيهات حرجة", "آخر تحديث"],
+        statsKpiRealtime: "فوري",
         workflowTitle: "كيف يعمل صندوق سمارت إيد",
-        workflowDesc: "عملية آلية سلسة من اكتشاف الدواء إلى إشعار المستشفى.",
+        workflowDesc: "عملية <strong>آلية سلسة</strong> — من اكتشاف الدواء إلى <strong>إشعار المستشفى</strong>.",
         workflowSteps: [
           "مسح الدواء باستخدام RFID",
           "التعرف على الدواء تلقائيًا",
@@ -898,14 +1041,14 @@ button:hover,
           "إرسال المعلومات إلى نظام المستشفى"
         ],
         outputTitle: "مثال على مخرجات النظام",
-        outputDesc: "نموذج لبيانات المخزون الفورية التي يولدها صندوق سمارت إيد.",
+        outputDesc: "نموذج لـ<strong>بيانات المخزون الفورية</strong> التي يولدها صندوق سمارت إيد.",
         outputLabels: ["اسم الدواء", "الكمية", "الحالة"],
         outputValues: ["باراسيتامول", "12 وحدة", "مخزون منخفض"],
         alertsTitle: "مثال على التنبيهات والإشعارات",
-        alertsDesc: "يرسل صندوق سمارت إيد تنبيهات تلقائية عند اكتشاف حالات حرجة.",
+        alertsDesc: "يرسل صندوق سمارت إيد <strong>تنبيهات ذكية تلقائية</strong> عند اكتشاف <strong>حالات حرجة</strong>.",
         alertMsgs: ["تم اكتشاف مخزون منخفض", "دواء عاجل مطلوب", "تم إرسال إشعار إلى المستشفى"],
         impactTitle: "الأثر على الرعاية الصحية",
-        impactDesc: "يحوّل صندوق سمارت إيد الرعاية الطبية الطارئة من خلال تمكين قرارات أسرع وأذكى.",
+        impactDesc: "يحوّل صندوق سمارت إيد <strong>الرعاية الطبية الطارئة</strong> من خلال تمكين استجابة أسرع وقرارات أذكى و<strong>نتائج أفضل للمرضى</strong>.",
         impactItems: [
           "استجابة طارئة أسرع",
           "تحسين الاستعداد للموارد",
@@ -945,7 +1088,7 @@ button:hover,
       document.documentElement.lang = lang;
       document.body.dir = lang === "ar" ? "rtl" : "ltr";
       document.getElementById("hero-title").textContent = t.heroTitle;
-      document.getElementById("hero-desc").textContent = t.heroDesc;
+      document.getElementById("hero-desc").innerHTML = t.heroDesc;
       document.getElementById("cta-btn").textContent = t.cta;
       // Nav
       document.getElementById("nav-problem").textContent = t.nav[0];
@@ -963,14 +1106,15 @@ button:hover,
       document.getElementById("menu-technology").textContent = t.menu[4];
       document.getElementById("menu-architecture").textContent = t.menu[5];
       document.getElementById("menu-statistics").textContent = t.menu[6];
-      document.getElementById("menu-team").textContent = t.menu[7];
-      document.getElementById("menu-contact").textContent = t.menu[8];
+      document.getElementById("menu-dashboard").textContent  = t.menu[7];
+      document.getElementById("menu-team").textContent       = t.menu[8];
+      document.getElementById("menu-contact").textContent    = t.menu[9];
       document.getElementById("menu-workflow").textContent = t.menuNewItems[0];
       document.getElementById("menu-alerts").textContent = t.menuNewItems[1];
       document.getElementById("menu-impact").textContent = t.menuNewItems[2];
       // Problem
       document.getElementById("problem-title").textContent = t.problemTitle;
-      document.getElementById("problem-desc").textContent = t.problemDesc;
+      document.getElementById("problem-desc").innerHTML = t.problemDesc;
       document.getElementById("problem-card1-title").textContent = t.problemCards[0][0];
       document.getElementById("problem-card1-desc").textContent = t.problemCards[0][1];
       document.getElementById("problem-card2-title").textContent = t.problemCards[1][0];
@@ -979,7 +1123,7 @@ button:hover,
       document.getElementById("problem-card3-desc").textContent = t.problemCards[2][1];
       // Solution
       document.getElementById("solution-title").textContent = t.solutionTitle;
-      document.getElementById("solution-desc").textContent = t.solutionDesc;
+      document.getElementById("solution-desc").innerHTML = t.solutionDesc;
       document.getElementById("solution-card1-title").textContent = t.solutionCards[0][0];
       document.getElementById("solution-card1-desc").textContent = t.solutionCards[0][1];
       document.getElementById("solution-card2-title").textContent = t.solutionCards[1][0];
@@ -1010,18 +1154,25 @@ button:hover,
       document.getElementById("tech-card4-title").textContent = t.techCards[3][0];
       document.getElementById("tech-card4-desc").textContent = t.techCards[3][1];
       // Statistics
-      document.getElementById("stats-title").textContent = t.statsTitle;
+      document.getElementById("stats-title").innerHTML = '<i class="fas fa-chart-bar title-icon"></i>' + t.statsTitle;
+      document.getElementById("stats-monitor-subtitle").textContent = t.statsMonitorSubtitle;
+      document.getElementById("stats-monitor-desc").innerHTML = t.statsMonitorDesc;
+      document.getElementById("idx-kpi-total-label").textContent = t.statsKpiLabels[0];
+      document.getElementById("idx-kpi-low-label").textContent = t.statsKpiLabels[1];
+      document.getElementById("idx-kpi-alert-label").textContent = t.statsKpiLabels[2];
+      document.getElementById("idx-kpi-update-label").textContent = t.statsKpiLabels[3];
+      document.getElementById("idx-kpi-update-val").textContent = t.statsKpiRealtime;
       // How SmartAid Box Works
-      document.getElementById("workflow-title").textContent = t.workflowTitle;
-      document.getElementById("workflow-desc").textContent = t.workflowDesc;
+      document.getElementById("workflow-title").innerHTML = '<i class="fas fa-route title-icon"></i>' + t.workflowTitle;
+      document.getElementById("workflow-desc").innerHTML = t.workflowDesc;
       document.getElementById("workflow-step1").textContent = t.workflowSteps[0];
       document.getElementById("workflow-step2").textContent = t.workflowSteps[1];
       document.getElementById("workflow-step3").textContent = t.workflowSteps[2];
       document.getElementById("workflow-step4").textContent = t.workflowSteps[3];
       document.getElementById("workflow-step5").textContent = t.workflowSteps[4];
       // System Output
-      document.getElementById("output-title").textContent = t.outputTitle;
-      document.getElementById("output-desc").textContent = t.outputDesc;
+      document.getElementById("output-title").innerHTML = '<i class="fas fa-table title-icon"></i>' + t.outputTitle;
+      document.getElementById("output-desc").innerHTML = t.outputDesc;
       document.getElementById("output-label1").textContent = t.outputLabels[0];
       document.getElementById("output-label2").textContent = t.outputLabels[1];
       document.getElementById("output-label3").textContent = t.outputLabels[2];
@@ -1029,14 +1180,14 @@ button:hover,
       document.getElementById("output-val2").textContent = t.outputValues[1];
       document.getElementById("output-val3").textContent = t.outputValues[2];
       // Alerts
-      document.getElementById("alerts-title").textContent = t.alertsTitle;
-      document.getElementById("alerts-desc").textContent = t.alertsDesc;
+      document.getElementById("alerts-title").innerHTML = '<i class="fas fa-bell title-icon"></i>' + t.alertsTitle;
+      document.getElementById("alerts-desc").innerHTML = t.alertsDesc;
       document.getElementById("alert-msg1").textContent = t.alertMsgs[0];
       document.getElementById("alert-msg2").textContent = t.alertMsgs[1];
       document.getElementById("alert-msg3").textContent = t.alertMsgs[2];
       // Impact
-      document.getElementById("impact-title").textContent = t.impactTitle;
-      document.getElementById("impact-desc").textContent = t.impactDesc;
+      document.getElementById("impact-title").innerHTML = '<i class="fas fa-heartbeat title-icon"></i>' + t.impactTitle;
+      document.getElementById("impact-desc").innerHTML = t.impactDesc;
       document.getElementById("impact-item1").textContent = t.impactItems[0];
       document.getElementById("impact-item2").textContent = t.impactItems[1];
       document.getElementById("impact-item3").textContent = t.impactItems[2];
@@ -1257,6 +1408,27 @@ button:hover,
     }
     window.addEventListener('scroll', revealOnScroll);
 
+    // Section fade-in via IntersectionObserver
+    function initSectionReveal() {
+      if (!('IntersectionObserver' in window)) {
+        document.querySelectorAll('.section-reveal').forEach(function(el) {
+          el.classList.add('visible');
+        });
+        return;
+      }
+      var sectionObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            sectionObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.section-reveal').forEach(function(el) {
+        sectionObserver.observe(el);
+      });
+    }
+
     const THEME_STORAGE_KEY = 'smartaid-theme';
 
     function syncThemeIcon() {
@@ -1275,8 +1447,31 @@ button:hover,
       syncThemeIcon();
     }
 
+    // Count-up animation for stats KPI cards
+    function countUp(el, target, duration) {
+      let start = 0;
+      const increment = target / (duration / 16);
+      function tick() {
+        start = Math.min(start + increment, target);
+        el.textContent = Math.floor(start);
+        if (start < target) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function animateStatsKpis() {
+      const cards = document.querySelectorAll('.stats-kpi-card');
+      cards.forEach(function(card, i) {
+        setTimeout(function() { card.classList.add('kpi-visible'); }, i * 130);
+      });
+      countUp(document.getElementById('idx-kpi-total-val'), 25, 900);
+      countUp(document.getElementById('idx-kpi-low-val'),   3,  700);
+      countUp(document.getElementById('idx-kpi-alert-val'), 1,  500);
+    }
+
     window.addEventListener('DOMContentLoaded', function() {
       applySavedTheme();
+      initSectionReveal();
       revealOnScroll();
       setLang("en");
 
@@ -1285,18 +1480,26 @@ button:hover,
       const statsSection = document.getElementById('statistics');
       if (statsSection && 'IntersectionObserver' in window) {
         let chartsDrawn = false;
+        let kpisAnimated = false;
         const observer = new IntersectionObserver(function(entries) {
           entries.forEach(function(entry) {
-            if (entry.isIntersecting && !chartsDrawn) {
-              chartsDrawn = true;
-              drawCharts();
-              observer.disconnect();
+            if (entry.isIntersecting) {
+              if (!chartsDrawn) {
+                chartsDrawn = true;
+                drawCharts();
+              }
+              if (!kpisAnimated) {
+                kpisAnimated = true;
+                animateStatsKpis();
+              }
+              if (chartsDrawn && kpisAnimated) observer.disconnect();
             }
           });
         }, { threshold: 0.1 });
         observer.observe(statsSection);
       } else {
         setTimeout(drawCharts, 300);
+        setTimeout(animateStatsKpis, 300);
       }
     });
     // Theme toggle

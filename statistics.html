@@ -325,7 +325,12 @@
       text-align: center;
       backdrop-filter: blur(8px);
       border: 1px solid rgba(37,99,235,0.10);
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease, box-shadow 0.2s;
     }
+    .monitoring-kpi-card:hover { box-shadow: 0 12px 40px rgba(37,99,235,0.18); }
+    .monitoring-kpi-card.kpi-visible { opacity: 1; transform: translateY(0); }
     .monitoring-kpi-card i {
       font-size: 1.8rem;
       color: var(--primary);
@@ -350,6 +355,129 @@
       font-weight: 600;
       color: var(--muted);
     }
+    /* live dashboard extras */
+    .live-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--glass);
+      border-radius: 14px;
+      padding: 12px 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--secondary);
+    }
+    .live-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--secondary);
+      position: relative;
+    }
+    .live-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 2px solid var(--secondary);
+      opacity: 0.5;
+      animation: liveRing 1.4s ease-out infinite;
+    }
+    @keyframes liveRing {
+      0%   { transform: scale(0.7); opacity: 0.6; }
+      100% { transform: scale(2.2); opacity: 0; }
+    }
+    .live-clock {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    /* critical card pulse ring */
+    .monitoring-kpi-card.kpi-critical {
+      position: relative;
+      overflow: visible;
+    }
+    .monitoring-kpi-card.kpi-critical::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: calc(var(--radius) + 4px);
+      border: 2px solid rgba(231,76,60,0.4);
+      animation: criticalRing 2s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes criticalRing {
+      0%   { opacity: 0.7; transform: scale(1); }
+      100% { opacity: 0;   transform: scale(1.04); }
+    }
+    /* spin on realtime icon */
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+    .spin-icon { animation: spinSlow 3s linear infinite; }
+    /* activity feed */
+    .activity-feed {
+      background: var(--glass);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(37,99,235,0.08);
+      padding: 20px 24px;
+      margin-bottom: 36px;
+      overflow: hidden;
+    }
+    .activity-feed-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0 0 14px;
+    }
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 10px;
+      background: rgba(37,99,235,0.04);
+      animation: feedSlide 0.4s ease;
+    }
+    @keyframes feedSlide {
+      from { opacity: 0; transform: translateX(-12px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .activity-item i { width: 18px; text-align: center; flex-shrink: 0; }
+    .activity-item .act-time {
+      margin-left: auto;
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .activity-item.act-warn i  { color: #f59e42; }
+    .activity-item.act-danger i { color: #e74c3c; }
+    .activity-item.act-ok i    { color: var(--secondary); }
+    [dir="rtl"] .activity-item .act-time { margin-left: 0; margin-right: auto; }
     @media (max-width: 600px) {
       .section-title { font-size: 1.3rem;}
       .glass-card { padding: 18px 8px;}
@@ -364,6 +492,69 @@
       .stats-table th, .stats-table td { padding: 8px 4px; font-size: 0.95rem;}
       .monitoring-kpi-grid { grid-template-columns: 1fr 1fr; }
     }
+    /* ── Chart and inventory dynamics ── */
+    .chart-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .chart-card-header .chart-card-title { margin-bottom: 0; }
+    .chart-live-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--secondary);
+      flex-shrink: 0;
+      box-shadow: 0 0 0 0 rgba(16,185,129,0.5);
+      animation: chartDotPulse 2.5s ease-in-out infinite;
+      transition: background 0.3s;
+    }
+    .chart-live-dot.flicker { background: #f59e42; }
+    @keyframes chartDotPulse {
+      0%,100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+      50%      { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+    }
+    .glass-card.chart-card {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.5s ease, transform 0.5s ease, box-shadow 0.2s;
+    }
+    .glass-card.chart-card.chart-visible { opacity: 1; transform: translateY(0); }
+    .glass-card.chart-card:hover { box-shadow: 0 14px 44px rgba(37,99,235,0.16); }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+    }
+    .badge-ok       { background: var(--secondary); }
+    .badge-low      { background: #f59e42; }
+    .badge-critical { background: #e74c3c; }
+    .stats-table tbody tr { transition: background 0.15s, transform 0.15s; cursor: default; }
+    .stats-table tbody tr:hover { background: rgba(37,99,235,0.06); transform: translateX(3px); }
+    .progress-bar { transition: width 1s cubic-bezier(.4,0,.2,1); }
+    .refresh-btn-wrap { text-align: center; margin: 0 0 32px; }
+    .refresh-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 12px 30px;
+      border-radius: 30px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      border: none;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: #fff;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .refresh-btn:hover { transform: scale(1.04); background: linear-gradient(90deg, var(--secondary), var(--primary)); }
+    .refresh-btn i { transition: transform 0.65s ease; }
+    .refresh-btn.spinning i { transform: rotate(360deg); }
   </style>
 </head>
 <body>
@@ -380,6 +571,7 @@
       <a href="index.html#technology" class="menu-item" id="menu-technology">Technology</a>
       <a href="architecture.html" class="menu-item" id="menu-architecture">Architecture</a>
       <a href="statistics.html" class="menu-item" id="menu-statistics">Statistics</a>
+      <a href="dashboard.html" class="menu-item" id="menu-dashboard">Dashboard</a>
       <a href="index.html#team" class="menu-item" id="menu-team">Team</a>
       <a href="index.html#contact" class="menu-item" id="menu-contact">Contact</a>
     </div>
@@ -394,63 +586,98 @@
     <h2 class="section-title" id="stats-title">Statistics</h2>
     <p class="monitoring-subtitle" id="monitoring-subtitle">System Monitoring Overview</p>
     <p class="monitoring-desc" id="monitoring-desc">This section demonstrates how the SmartAid Box system monitors medical supplies and provides real-time updates to support decision-making.</p>
+    <!-- Live status bar -->
+    <div class="live-bar">
+      <span class="live-badge"><span class="live-dot"></span><span id="live-badge-text">LIVE</span></span>
+      <span class="live-clock" id="live-clock">--:--:--</span>
+    </div>
     <div class="monitoring-kpi-grid">
       <div class="monitoring-kpi-card">
         <i class="fas fa-pills"></i>
-        <div class="monitoring-kpi-value" id="kpi-total-val">25</div>
+        <div class="monitoring-kpi-value" id="kpi-total-val">0</div>
         <div class="monitoring-kpi-label" id="kpi-total-label">Total Medicines</div>
+      </div>
+      <div class="monitoring-kpi-card kpi-realtime">
+        <i class="fas fa-boxes"></i>
+        <div class="monitoring-kpi-value" id="kpi-remaining-val">0</div>
+        <div class="monitoring-kpi-label" id="kpi-remaining-label">Remaining Medicines</div>
       </div>
       <div class="monitoring-kpi-card kpi-low">
         <i class="fas fa-exclamation-circle"></i>
-        <div class="monitoring-kpi-value" id="kpi-low-val">3</div>
+        <div class="monitoring-kpi-value" id="kpi-low-val">0</div>
         <div class="monitoring-kpi-label" id="kpi-low-label">Low Stock Items</div>
       </div>
       <div class="monitoring-kpi-card kpi-critical">
         <i class="fas fa-bell"></i>
-        <div class="monitoring-kpi-value" id="kpi-alert-val">1</div>
+        <div class="monitoring-kpi-value" id="kpi-alert-val">0</div>
         <div class="monitoring-kpi-label" id="kpi-alert-label">Critical Alerts</div>
       </div>
       <div class="monitoring-kpi-card kpi-realtime">
-        <i class="fas fa-sync-alt"></i>
+        <i class="fas fa-sync-alt spin-icon"></i>
         <div class="monitoring-kpi-value" id="kpi-update-val">Real-time</div>
         <div class="monitoring-kpi-label" id="kpi-update-label">Last Update</div>
       </div>
     </div>
+    <!-- Activity Feed -->
+    <div class="activity-feed">
+      <p class="activity-feed-title" id="activity-feed-title">Live System Activity</p>
+      <div class="activity-list" id="activity-list"></div>
+    </div>
     <div class="glass-grid">
       <div class="glass-card chart-card">
-        <h3 class="chart-card-title" id="usage-chart-title">Total & Item Usage</h3>
+        <div class="chart-card-header">
+          <h3 class="chart-card-title" id="usage-chart-title">Total &amp; Item Usage</h3>
+          <span class="chart-live-dot"></span>
+        </div>
         <div class="chart-wrap">
           <canvas id="usageChart"></canvas>
         </div>
       </div>
       <div class="glass-card chart-card">
-        <h3 class="chart-card-title" id="dist-chart-title">Supply Distribution</h3>
+        <div class="chart-card-header">
+          <h3 class="chart-card-title" id="dist-chart-title">Supply Distribution</h3>
+          <span class="chart-live-dot"></span>
+        </div>
         <div class="chart-wrap">
           <canvas id="distChart"></canvas>
         </div>
       </div>
       <div class="glass-card chart-card">
-        <h3 class="chart-card-title" id="inventory-chart-title">Inventory Quantity</h3>
+        <div class="chart-card-header">
+          <h3 class="chart-card-title" id="inventory-chart-title">Inventory Quantity</h3>
+          <span class="chart-live-dot"></span>
+        </div>
         <div class="chart-wrap">
           <canvas id="inventoryChart"></canvas>
         </div>
       </div>
       <div class="glass-card chart-card">
-        <h3 class="chart-card-title" id="usage-breakdown-title">Used vs Remaining</h3>
+        <div class="chart-card-header">
+          <h3 class="chart-card-title" id="usage-breakdown-title">Used vs Remaining</h3>
+          <span class="chart-live-dot"></span>
+        </div>
         <div class="chart-wrap">
           <canvas id="usageBreakdownChart"></canvas>
         </div>
       </div>
     </div>
+    <!-- Refresh button -->
+    <div class="refresh-btn-wrap">
+      <button class="refresh-btn" id="refresh-btn" onclick="simulateRefresh()">
+        <i class="fas fa-sync-alt"></i>
+        <span id="refresh-btn-text">Refresh Data</span>
+      </button>
+    </div>
     <!-- New: Table and Progress Bars -->
     <h2 class="section-title" id="resources-title">Inventory Details</h2>
     <table class="stats-table" id="resources-table">
       <thead>
-        <tr>
+        <tr id="resources-table-head">
           <th>Item</th>
           <th>Current</th>
           <th>Used</th>
           <th>Remaining</th>
+          <th>Status</th>
           <th>Level</th>
         </tr>
       </thead>
@@ -509,12 +736,25 @@
     const translations = {
       en: {
         nav: ["Home", "Statistics", "Contact"],
-        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Team", "Contact"],
+        menu: ["Home", "Problem", "Solution", "Features", "Technology", "Architecture", "Statistics", "Dashboard", "Team", "Contact"],
         statsTitle: "Statistics",
         monitoringSubtitle: "System Monitoring Overview",
         monitoringDesc: "This section demonstrates how the SmartAid Box system monitors medical supplies and provides real-time updates to support decision-making.",
-        kpiLabels: ["Total Medicines", "Low Stock Items", "Critical Alerts", "Last Update"],
+        kpiLabels: ["Total Medicines", "Remaining Medicines", "Low Stock Items", "Critical Alerts", "Last Update"],
         kpiValues: ["25", "3", "1", "Real-time"],
+        liveBadge: "LIVE",
+        activityFeedTitle: "Live System Activity",
+        activityEvents: [
+          { type: "warn",   icon: "fa-exclamation-circle", text: "Low stock detected: Paracetamol (12 units)" },
+          { type: "danger", icon: "fa-bell",               text: "Critical alert: Oxygen Masks below threshold" },
+          { type: "ok",     icon: "fa-check-circle",       text: "Data synced to hospital system" },
+          { type: "warn",   icon: "fa-exclamation-circle", text: "Low stock detected: IV Kits (8 units)" },
+          { type: "ok",     icon: "fa-sync-alt",           text: "Inventory scan completed successfully" },
+          { type: "danger", icon: "fa-bell",               text: "Urgent restock required: Bandages" },
+          { type: "ok",     icon: "fa-hospital",           text: "Notification sent to hospital dashboard" }
+        ],
+        justNow: "just now",
+        secsAgo: "s ago",
         usageLabel: "Total Usage (per day)",
         usageChartTitle: "Total & Item Usage",
         distLabel: "Supplies Distribution",
@@ -532,6 +772,9 @@
         medicationUsageLabel: "Medications",
         items: ["IV Kits", "Oxygen Masks", "Bandages", "Medications"],
         resourcesTitle: "Inventory Details",
+        tableHeaders: ["Item", "Current", "Used", "Remaining", "Status", "Level"],
+        statusBadges: ["OK", "Low", "Critical"],
+        refreshBtnText: "Refresh Data",
         table: [
           ["IV Kits", 45, 20, 25],
           ["Oxygen Masks", 30, 15, 15],
@@ -549,12 +792,25 @@
       },
       ar: {
         nav: ["الرئيسية", "الإحصائيات", "اتصل بنا"],
-        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "الفريق", "اتصل بنا"],
+        menu: ["الرئيسية", "المشكلة", "الحل", "الميزات", "التكنولوجيا", "الهيكل النظامي", "الإحصائيات", "اللوحة", "الفريق", "اتصل بنا"],
         statsTitle: "الإحصائيات",
         monitoringSubtitle: "نظرة عامة على مراقبة النظام",
         monitoringDesc: "يوضح هذا القسم كيفية مراقبة صندوق سمارت إيد للمستلزمات الطبية وتقديم تحديثات فورية لدعم اتخاذ القرار.",
-        kpiLabels: ["إجمالي الأدوية", "عناصر مخزون منخفض", "تنبيهات حرجة", "آخر تحديث"],
+        kpiLabels: ["إجمالي الأدوية", "الأدوية المتبقية", "عناصر مخزون منخفض", "تنبيهات حرجة", "آخر تحديث"],
         kpiValues: ["25", "3", "1", "فوري"],
+        liveBadge: "مباشر",
+        activityFeedTitle: "النشاط المباشر للنظام",
+        activityEvents: [
+          { type: "warn",   icon: "fa-exclamation-circle", text: "مخزون منخفض: باراسيتامول (12 وحدة)" },
+          { type: "danger", icon: "fa-bell",               text: "تنبيه حرج: أقنعة الأكسجين دون الحد" },
+          { type: "ok",     icon: "fa-check-circle",       text: "تمت مزامنة البيانات مع نظام المستشفى" },
+          { type: "warn",   icon: "fa-exclamation-circle", text: "مخزون منخفض: أكياس IV (8 وحدات)" },
+          { type: "ok",     icon: "fa-sync-alt",           text: "اكتمل مسح المخزون بنجاح" },
+          { type: "danger", icon: "fa-bell",               text: "إعادة تزويد عاجلة: ضمادات" },
+          { type: "ok",     icon: "fa-hospital",           text: "تم إرسال إشعار إلى لوحة المستشفى" }
+        ],
+        justNow: "الآن",
+        secsAgo: " ث",
         usageLabel: "إجمالي الاستهلاك (يوميًا)",
         usageChartTitle: "الاستهلاك الكلي واستهلاك العناصر",
         distLabel: "توزيع المستلزمات",
@@ -572,6 +828,9 @@
         medicationUsageLabel: "أدوية",
         items: ["أكياس IV", "أقنعة الأكسجين", "ضمادات", "أدوية"],
         resourcesTitle: "تفاصيل المخزون",
+        tableHeaders: ["العنصر", "الحالي", "المستخدم", "المتبقي", "الحالة", "المستوى"],
+        statusBadges: ["جيد", "منخفض", "حرج"],
+        refreshBtnText: "تحديث البيانات",
         table: [
           ["أكياس IV", 45, 20, 25],
           ["أقنعة الأكسجين", 30, 15, 15],
@@ -591,6 +850,13 @@
     let currentLang = "en";
     let usageChart, distChart, inventoryChart, usageBreakdownChart;
     let isDark = false;
+    let liveTableNumerics = null; // [[current, used, remaining], ...]
+    const liveChartData = {
+      iv:         [3, 5, 4, 7, 6, 8, 10],
+      oxygen:     [2, 3, 2, 4, 3, 5, 7],
+      bandage:    [4, 6, 5, 8, 7, 9, 12],
+      medication: [3, 5, 4, 6, 4, 8, 16]
+    };
     function setLang(lang) {
       currentLang = lang;
       const t = translations[lang];
@@ -604,20 +870,23 @@
       document.getElementById("menu-technology").textContent = t.menu[4];
       document.getElementById("menu-architecture").textContent = t.menu[5];
       document.getElementById("menu-statistics").textContent = t.menu[6];
-      document.getElementById("menu-team").textContent = t.menu[7];
-      document.getElementById("menu-contact").textContent = t.menu[8];
+      document.getElementById("menu-dashboard").textContent  = t.menu[7];
+      document.getElementById("menu-team").textContent       = t.menu[8];
+      document.getElementById("menu-contact").textContent    = t.menu[9];
       // Stats
       document.getElementById("stats-title").textContent = t.statsTitle;
       document.getElementById("monitoring-subtitle").textContent = t.monitoringSubtitle;
       document.getElementById("monitoring-desc").textContent = t.monitoringDesc;
       document.getElementById("kpi-total-label").textContent = t.kpiLabels[0];
-      document.getElementById("kpi-low-label").textContent = t.kpiLabels[1];
-      document.getElementById("kpi-alert-label").textContent = t.kpiLabels[2];
-      document.getElementById("kpi-update-label").textContent = t.kpiLabels[3];
-      document.getElementById("kpi-total-val").textContent = t.kpiValues[0];
-      document.getElementById("kpi-low-val").textContent = t.kpiValues[1];
-      document.getElementById("kpi-alert-val").textContent = t.kpiValues[2];
+      document.getElementById("kpi-remaining-label").textContent = t.kpiLabels[1];
+      document.getElementById("kpi-low-label").textContent = t.kpiLabels[2];
+      document.getElementById("kpi-alert-label").textContent = t.kpiLabels[3];
+      document.getElementById("kpi-update-label").textContent = t.kpiLabels[4];
       document.getElementById("kpi-update-val").textContent = t.kpiValues[3];
+      document.getElementById("live-badge-text").textContent = t.liveBadge;
+      document.getElementById("activity-feed-title").textContent = t.activityFeedTitle;
+      buildActivityFeed();
+      document.getElementById("refresh-btn-text").textContent = t.refreshBtnText;
       document.getElementById("footer-text").innerHTML = "&copy; 2026 Smart Aid. " + t.footer;
       document.getElementById("lang-btn").textContent = t.langBtn;
       document.getElementById("resources-title").textContent = t.resourcesTitle;
@@ -625,25 +894,16 @@
       document.getElementById("dist-chart-title").textContent = t.distChartTitle;
       document.getElementById("inventory-chart-title").textContent = t.inventoryChartTitle;
       document.getElementById("usage-breakdown-title").textContent = t.usageBreakdownChartTitle;
-      // Table
-      const table = document.getElementById("resources-table").getElementsByTagName("tbody")[0];
-      table.innerHTML = "";
-      t.table.forEach(row => {
-        const total = row[1] + row[2] + row[3];
-        const level = Math.round((row[3] / total) * 100);
-        table.innerHTML += `
-        <tr>
-          <td>${row[0]}</td>
-          <td>${row[1]}</td>
-          <td>${row[2]}</td>
-          <td>${row[3]}</td>
-          <td>
-            <div class="progress-bar-container">
-              <div class="progress-bar" style="width:${level}%"></div>
-            </div>
-          </td>
-        </tr>`;
-      });
+      // Table — rebuild thead + tbody
+      const thead = document.getElementById("resources-table-head");
+      if (thead) thead.innerHTML = t.tableHeaders.map(function(h) { return '<th>' + h + '</th>'; }).join('');
+      // Init live table numerics on first call
+      if (!liveTableNumerics) {
+        liveTableNumerics = t.table.map(function(row) {
+          return [row[1], row[2], row[3]]; // [current, used, remaining]
+        });
+      }
+      rebuildTableBody(t);
       // Theme label (kept optional if element is not present)
       const themeLabel = document.getElementById("theme-label");
       if (themeLabel) themeLabel.textContent = isDark ? t.themeLight : t.themeDark;
@@ -678,10 +938,10 @@
     function drawCharts() {
       const t = translations[currentLang];
       const textColor = getComputedStyle(document.body).getPropertyValue('--text');
-      const ivUsage = [3, 5, 4, 7, 6, 8, 10];
-      const oxygenUsage = [2, 3, 2, 4, 3, 5, 7];
-      const bandageUsage = [4, 6, 5, 8, 7, 9, 12];
-      const medicationUsage = [3, 5, 4, 6, 4, 8, 16];
+      const ivUsage = liveChartData.iv;
+      const oxygenUsage = liveChartData.oxygen;
+      const bandageUsage = liveChartData.bandage;
+      const medicationUsage = liveChartData.medication;
       const totalUsage = ivUsage.map((value, index) => (
         value + oxygenUsage[index] + bandageUsage[index] + medicationUsage[index]
       ));
@@ -914,10 +1174,186 @@
       drawCharts();
     }
 
+    // ── Dynamic chart + table functions ──
+    function rebuildTableBody(t) {
+      const table = document.getElementById('resources-table').getElementsByTagName('tbody')[0];
+      if (!table || !liveTableNumerics) return;
+      table.innerHTML = '';
+      t.table.forEach(function(row, i) {
+        const nums = liveTableNumerics[i];
+        const pct = Math.round((nums[2] / nums[0]) * 100);
+        const stClass = pct >= 60 ? 'badge-ok' : pct >= 30 ? 'badge-low' : 'badge-critical';
+        const stText  = pct >= 60 ? t.statusBadges[0] : pct >= 30 ? t.statusBadges[1] : t.statusBadges[2];
+        table.innerHTML += `
+        <tr>
+          <td>${row[0]}</td>
+          <td>${nums[0]}</td>
+          <td>${nums[1]}</td>
+          <td>${nums[2]}</td>
+          <td><span class="status-badge ${stClass}">${stText}</span></td>
+          <td>
+            <div class="progress-bar-container">
+              <div class="progress-bar" style="width:0%" data-target="${pct}%"></div>
+            </div>
+          </td>
+        </tr>`;
+      });
+      setTimeout(animateProgressBars, 50);
+    }
+
+    function nudgePoint(arr) {
+      const last = arr[arr.length - 1];
+      const newVal = Math.max(1, Math.min(20, last + Math.floor(Math.random() * 5) - 2));
+      return [...arr.slice(1), newVal];
+    }
+
+    function liveUpdateCharts() {
+      if (!usageChart) return;
+      liveChartData.iv         = nudgePoint(liveChartData.iv);
+      liveChartData.oxygen     = nudgePoint(liveChartData.oxygen);
+      liveChartData.bandage    = nudgePoint(liveChartData.bandage);
+      liveChartData.medication = nudgePoint(liveChartData.medication);
+      const total = liveChartData.iv.map(function(v, i) {
+        return v + liveChartData.oxygen[i] + liveChartData.bandage[i] + liveChartData.medication[i];
+      });
+      usageChart.data.datasets[0].data = total;
+      usageChart.data.datasets[1].data = [...liveChartData.iv];
+      usageChart.data.datasets[2].data = [...liveChartData.oxygen];
+      usageChart.data.datasets[3].data = [...liveChartData.bandage];
+      usageChart.data.datasets[4].data = [...liveChartData.medication];
+      usageChart.update('active');
+      document.querySelectorAll('.chart-live-dot').forEach(function(dot) {
+        dot.classList.add('flicker');
+        setTimeout(function() { dot.classList.remove('flicker'); }, 700);
+      });
+    }
+
+    function animateProgressBars() {
+      document.querySelectorAll('.progress-bar[data-target]').forEach(function(bar) {
+        bar.style.width = '0%';
+        requestAnimationFrame(function() {
+          requestAnimationFrame(function() { bar.style.width = bar.dataset.target; });
+        });
+      });
+    }
+
+    function animateChartCards() {
+      document.querySelectorAll('.glass-card.chart-card').forEach(function(card, i) {
+        setTimeout(function() { card.classList.add('chart-visible'); }, i * 130);
+      });
+    }
+
+    function simulateRefresh() {
+      const btn = document.getElementById('refresh-btn');
+      btn.classList.add('spinning');
+      setTimeout(function() { btn.classList.remove('spinning'); }, 700);
+      liveUpdateCharts();
+      if (inventoryChart) {
+        inventoryChart.data.datasets[0].data = inventoryChart.data.datasets[0].data.map(function(v) {
+          return Math.max(10, Math.min(70, v + Math.floor(Math.random() * 9) - 4));
+        });
+        inventoryChart.update('active');
+      }
+      if (usageBreakdownChart) {
+        usageBreakdownChart.data.datasets[0].data = usageBreakdownChart.data.datasets[0].data.map(function(v) {
+          return Math.max(1, Math.min(30, v + Math.floor(Math.random() * 5) - 2));
+        });
+        usageBreakdownChart.update('active');
+      }
+      // Nudge table data
+      if (liveTableNumerics) {
+        liveTableNumerics = liveTableNumerics.map(function(nums) {
+          const delta = Math.floor(Math.random() * 3); // 0-2 units consumed
+          const newUsed = Math.min(nums[0] - 1, nums[1] + delta);
+          const newRemaining = nums[0] - newUsed;
+          return [nums[0], newUsed, newRemaining];
+        });
+        rebuildTableBody(translations[currentLang]);
+        // Update total KPI to reflect summed current values
+        const newTotal = liveTableNumerics.reduce(function(s, n) { return s + n[0]; }, 0);
+        const newRemaining = liveTableNumerics.reduce(function(s, n) { return s + n[2]; }, 0);
+        countUp(document.getElementById('kpi-total-val'), newTotal, 600);
+        countUp(document.getElementById('kpi-remaining-val'), newRemaining, 600);
+      }
+      animateProgressBars();
+    }
+
+    function countUp(el, target, duration) {
+      let start = 0;
+      const increment = target / (duration / 16);
+      function tick() {
+        start = Math.min(start + increment, target);
+        el.textContent = Math.floor(start);
+        if (start < target) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function animateKpis() {
+      document.querySelectorAll('.monitoring-kpi-card').forEach(function(card, i) {
+        setTimeout(function() { card.classList.add('kpi-visible'); }, i * 130);
+      });
+      const total = liveTableNumerics ? liveTableNumerics.reduce(function(s, n) { return s + n[0]; }, 0) : 25;
+      const remaining = liveTableNumerics ? liveTableNumerics.reduce(function(s, n) { return s + n[2]; }, 0) : 90;
+      countUp(document.getElementById('kpi-total-val'), total, 900);
+      countUp(document.getElementById('kpi-remaining-val'), remaining, 900);
+      countUp(document.getElementById('kpi-low-val'),   3,  700);
+      countUp(document.getElementById('kpi-alert-val'), 1,  500);
+    }
+
+    // Live clock
+    function startClock() {
+      function tick() {
+        const now = new Date();
+        const pad = n => String(n).padStart(2, '0');
+        document.getElementById('live-clock').textContent =
+          pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    // Activity feed
+    const feedTimestamps = [];
+    function buildActivityFeed() {
+      const t = translations[currentLang];
+      const list = document.getElementById('activity-list');
+      list.innerHTML = '';
+      const now = Date.now();
+      t.activityEvents.forEach(function(ev, i) {
+        if (!feedTimestamps[i]) feedTimestamps[i] = now - (t.activityEvents.length - i) * 18000;
+        const item = document.createElement('div');
+        item.className = 'activity-item act-' + ev.type;
+        const elapsed = Math.floor((now - feedTimestamps[i]) / 1000);
+        const timeStr = elapsed < 5 ? t.justNow : elapsed + t.secsAgo;
+        item.innerHTML =
+          '<i class="fas ' + ev.icon + '"></i>' +
+          '<span>' + ev.text + '</span>' +
+          '<span class="act-time">' + timeStr + '</span>';
+        list.appendChild(item);
+      });
+    }
+
+    function startFeedRotation() {
+      setInterval(function() {
+        const t = translations[currentLang];
+        const idx = Math.floor(Math.random() * t.activityEvents.length);
+        feedTimestamps[idx] = Date.now();
+        buildActivityFeed();
+      }, 4500);
+    }
+
     window.addEventListener('DOMContentLoaded', function() {
       applySavedTheme();
       setLang("en");
       drawCharts();
+      setTimeout(animateKpis, 200);
+      setTimeout(animateChartCards, 100);
+      setTimeout(animateProgressBars, 400);
+      startClock();
+      startFeedRotation();
+      setInterval(liveUpdateCharts, 6000);
+      setInterval(simulateRefresh, 15000);
     });
   </script>
 </body>
